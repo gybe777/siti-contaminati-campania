@@ -336,7 +336,7 @@ body {
   width: auto !important;
 }
 .leaflet-popup-tip-container { display: none; }
-.popup-inner { padding: 18px 22px; min-width: 300px; max-width: 380px; }
+.popup-inner { padding: 20px 26px 24px; min-width: 340px; max-width: 440px; }
 .popup-cat {
   font-size: 10px;
   font-weight: 600;
@@ -358,31 +358,31 @@ body {
   flex-shrink: 0;
 }
 .popup-title {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--white);
-  margin-bottom: 10px;
-  line-height: 1.3;
+  margin-bottom: 14px;
+  line-height: 1.35;
 }
 .popup-row {
   display: flex;
-  gap: 10px;
-  margin-bottom: 4px;
+  gap: 16px;
+  margin-bottom: 8px;
   align-items: baseline;
 }
-.popup-key {
-  font-size: 10px;
+.popup-key, .popup-label {
+  font-size: 11px;
   font-family: var(--mono);
   color: var(--gray2);
-  width: 90px;
+  width: 80px;
   flex-shrink: 0;
   letter-spacing: 0.03em;
   text-transform: uppercase;
 }
-.popup-val {
-  font-size: 11px;
+.popup-val, .popup-row > span:last-child {
+  font-size: 13px;
   color: var(--gray1);
-  line-height: 1.4;
+  line-height: 1.45;
   word-break: break-word;
 }
 .popup-link {
@@ -948,7 +948,7 @@ SITES.forEach((s,i)=>{
   const col=getColor(s['Site Type']);
   const m=L.marker([s.lat,s.lon],{
     icon:L.divIcon({className:'',html:'<svg width="10" height="12" viewBox="0 0 10 12" xmlns="http://www.w3.org/2000/svg" style="display:block"><polygon points="5,12 0,0 10,0" fill="'+col+'" opacity="0.9"/></svg>',iconSize:[10,12],iconAnchor:[5,6]})
-  }).bindPopup(()=>sitePopupHTML(s),{maxWidth:400});
+  }).bindPopup(()=>sitePopupHTML(s),{maxWidth:480});
   m.addTo(markersLg);
   mByIdx.set(i,m);
 });
@@ -1319,7 +1319,7 @@ function addTerrainAndData() {
     });
     glMap.on('click','sites-pts',e=>{
       const s=e.features[0].properties;
-      new maplibregl.Popup({closeButton:false,maxWidth:'400px'})
+      new maplibregl.Popup({closeButton:false,maxWidth:'480px'})
         .setLngLat(e.lngLat)
         .setHTML('<div class="popup-wrap"><div class="popup-title">'+s.name+'</div>'
           +'<div class="popup-row"><span class="popup-label">'+T('p_comune')+'</span><span>'+(s.municipality||'—')+'</span></div>'

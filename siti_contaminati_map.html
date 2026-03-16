@@ -43,7 +43,7 @@ body {
 
 /* ── HEADER ── */
 #header {
-  height: 40px;
+  height: 48px;
   background: var(--dark);
   border-bottom: 1px solid var(--border);
   display: flex;
@@ -64,10 +64,10 @@ body {
 }
 .hdr-tab {
   height: 100%;
-  padding: 0 20px;
+  padding: 0 22px;
   display: flex;
   align-items: center;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.01em;
   color: var(--gray1);
@@ -88,7 +88,7 @@ body {
   display: flex;
   align-items: center;
   padding: 0 20px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--gray1);
   letter-spacing: 0.02em;
@@ -108,7 +108,7 @@ body {
 }
 .hdr-count {
   padding: 0 16px;
-  font-size: 11px;
+  font-size: 12px;
   font-family: var(--mono);
   color: var(--gray1);
   letter-spacing: 0.05em;
@@ -118,13 +118,13 @@ body {
   font-weight: 600;
 }
 .hdr-logo {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   background: var(--red);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   color: #fff;
   letter-spacing: 0.08em;
@@ -152,7 +152,7 @@ body {
 /* Tab sub-header inside sidebar */
 .sidebar-meta {
   padding: 10px 16px 8px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--gray2);
   line-height: 1.45;
   border-bottom: 1px solid var(--border);
@@ -162,7 +162,7 @@ body {
 }
 .sidebar-meta p { flex: 1; }
 .reset-btn {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--gray2);
   text-decoration: underline;
   cursor: pointer;
@@ -203,13 +203,13 @@ body {
 }
 .lr-name {
   flex: 1;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--white);
   line-height: 1.3;
 }
 .lr-count {
-  font-size: 10px;
+  font-size: 11px;
   font-family: var(--mono);
   color: var(--gray2);
   letter-spacing: 0.05em;
@@ -232,7 +232,7 @@ body {
 .layer-expand.open { display: block; }
 .expand-desc {
   padding: 10px 16px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--gray1);
   line-height: 1.5;
   border-bottom: 1px solid var(--border);
@@ -257,12 +257,12 @@ body {
 }
 .sub-name {
   flex: 1;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--white);
 }
 .sub-count {
-  font-size: 10px;
+  font-size: 11px;
   font-family: var(--mono);
   color: var(--gray2);
 }
@@ -423,7 +423,7 @@ body {
 
 /* ── STATUS BAR ── */
 #statusbar {
-  height: 28px;
+  height: 32px;
   background: var(--dark);
   border-top: 1px solid var(--border);
   display: flex;
@@ -433,7 +433,7 @@ body {
   flex-shrink: 0;
 }
 .sb-item {
-  font-size: 10px;
+  font-size: 11px;
   font-family: var(--mono);
   color: var(--gray2);
   letter-spacing: 0.04em;
@@ -494,9 +494,9 @@ body {
   border: 1px solid var(--border2) !important;
   border-top: 2px solid var(--gray2) !important;
   font-family: var(--mono) !important;
-  font-size: 9px !important;
+  font-size: 11px !important;
   letter-spacing: 0.05em !important;
-  padding: 2px 6px !important;
+  padding: 3px 8px !important;
   white-space: nowrap;
   line-height: 1.6;
 }
@@ -505,25 +505,25 @@ body {
 /* ── NORTH ARROW ── */
 #north-arrow {
   position: absolute;
-  bottom: 42px; left: 10px;
-  width: 34px; height: 34px;
+  bottom: 46px; left: 10px;
+  width: 44px; height: 44px;
   z-index: 900; pointer-events: none;
   transition: transform 0.25s ease;
 }
 #north-arrow svg { width: 100%; height: 100%; }
 /* ── INFO BUTTON ── */
 #info-btn {
-  position: absolute; top: 10px; left: 10px;
-  width: 28px; height: 28px; z-index: 1000;
+  position: absolute; top: 82px; left: 10px;
+  width: 30px; height: 30px; z-index: 1000;
   background: var(--dark); border: 1px solid var(--border2);
   color: var(--gray1); font-family: Georgia, serif;
-  font-style: italic; font-size: 13px; font-weight: 700;
+  font-style: italic; font-size: 14px; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: all 0.15s; user-select: none;
 }
 #info-btn:hover { color: var(--white); border-color: var(--gray2); }
 #info-panel {
-  position: absolute; top: 48px; left: 10px;
+  position: absolute; top: 122px; left: 10px;
   width: 260px; background: var(--dark);
   border: 1px solid var(--border2); z-index: 1000;
   display: none; flex-direction: column; gap: 0;
@@ -608,8 +608,8 @@ body {
   background: transparent; border: none;
   border-right: 1px solid var(--border2);
   color: var(--gray2); font-family: var(--mono);
-  font-size: 9px; font-weight: 600; letter-spacing: 0.06em;
-  padding: 4px 9px; cursor: pointer; transition: color 0.12s, background 0.12s;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+  padding: 5px 11px; cursor: pointer; transition: color 0.12s, background 0.12s;
   white-space: nowrap;
 }
 .bm-btn:last-child { border-right: none; }
@@ -620,8 +620,8 @@ body {
 .btn-3d {
   background: var(--mid); border: 1px solid var(--border2);
   color: var(--gray1); font-family: var(--mono);
-  font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
-  padding: 3px 9px; cursor: pointer; transition: all 0.15s;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  padding: 4px 11px; cursor: pointer; transition: all 0.15s;
   border-radius: 0; margin-right: 8px;
 }
 .btn-3d:hover { color: var(--white); border-color: var(--gray2); }

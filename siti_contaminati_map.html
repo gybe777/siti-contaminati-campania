@@ -118,17 +118,19 @@ body {
   font-weight: 600;
 }
 .hdr-logo {
-  width: 48px;
   height: 48px;
+  padding: 0 20px;
   background: var(--red);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   color: #fff;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   flex-shrink: 0;
+  white-space: nowrap;
+  border-right: 1px solid rgba(0,0,0,0.2);
 }
 
 /* ── LAYOUT ── */
@@ -640,17 +642,18 @@ body {
 
 <!-- HEADER -->
 <div id="header">
+  <div class="hdr-logo">Wasted Ecologies</div>
   <div class="hdr-tabs">
     <div class="hdr-tab active" data-tab="layers" onclick="switchTab('layers')" data-i18n="tab_layers">Layers</div>
     <div class="hdr-tab" data-tab="search" onclick="switchTab('search')" data-i18n="tab_search">Cerca</div>
   </div>
   <div class="hdr-title">
-    <strong>Wasted Ecologies</strong> <span id="hdr-subtitle" data-i18n="hdr_subtitle">Siti Contaminati · Campania · ARPAC</span>
+    <span id="hdr-subtitle" data-i18n="hdr_subtitle">Siti Contaminati · Campania · ARPAC</span>
   </div>
   <div class="hdr-right">
     <div class="hdr-count"><span data-i18n="hdr_visible">Visibili:</span> <span id="hdr-vis">241</span> / <span id="hdr-tot">241</span></div>
     <button class="btn-3d" id="btn-lang" onclick="toggleLang()" title="Switch language" style="margin-right:4px">EN</button>
-    <button class="btn-3d" id="btn-3d" onclick="toggle3D()" title="Toggle 3D terrain view">3D</button><div class="hdr-logo">WE</div>
+    <button class="btn-3d" id="btn-3d" onclick="toggle3D()" title="Toggle 3D terrain view">3D</button>
   </div>
 </div>
 

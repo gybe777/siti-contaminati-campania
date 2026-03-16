@@ -336,7 +336,7 @@ body {
   width: auto !important;
 }
 .leaflet-popup-tip-container { display: none; }
-.popup-inner { padding: 14px 16px; min-width: 240px; max-width: 300px; }
+.popup-inner { padding: 18px 22px; min-width: 300px; max-width: 380px; }
 .popup-cat {
   font-size: 10px;
   font-weight: 600;
@@ -948,7 +948,7 @@ SITES.forEach((s,i)=>{
   const col=getColor(s['Site Type']);
   const m=L.marker([s.lat,s.lon],{
     icon:L.divIcon({className:'',html:'<svg width="10" height="12" viewBox="0 0 10 12" xmlns="http://www.w3.org/2000/svg" style="display:block"><polygon points="5,12 0,0 10,0" fill="'+col+'" opacity="0.9"/></svg>',iconSize:[10,12],iconAnchor:[5,6]})
-  }).bindPopup(()=>sitePopupHTML(s),{maxWidth:280});
+  }).bindPopup(()=>sitePopupHTML(s),{maxWidth:400});
   m.addTo(markersLg);
   mByIdx.set(i,m);
 });
@@ -1319,7 +1319,7 @@ function addTerrainAndData() {
     });
     glMap.on('click','sites-pts',e=>{
       const s=e.features[0].properties;
-      new maplibregl.Popup({closeButton:false,maxWidth:'280px'})
+      new maplibregl.Popup({closeButton:false,maxWidth:'400px'})
         .setLngLat(e.lngLat)
         .setHTML('<div class="popup-wrap"><div class="popup-title">'+s.name+'</div>'
           +'<div class="popup-row"><span class="popup-label">'+T('p_comune')+'</span><span>'+(s.municipality||'—')+'</span></div>'

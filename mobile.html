@@ -42,63 +42,125 @@
       overflow: hidden;
     }
     
-    /* Top bar (52px) */
+    /* ── TOP BAR – desktop-style header ── */
     #top-bar {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 52px;
+      top: 0; left: 0; right: 0;
+      height: 48px;
+      background: var(--dark);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: stretch;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+
+    #top-bar::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: var(--red);
+      pointer-events: none;
+    }
+
+    .hdr-tabs {
+      display: flex;
+      align-items: stretch;
+    }
+
+    .hdr-tab {
+      height: 100%;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      font-size: 11px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--gray2);
+      cursor: pointer;
+      user-select: none;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+    }
+
+    .hdr-tab:active { color: var(--white); }
+
+    .hdr-tab.active {
+      color: var(--white);
+      background: var(--mid);
+      border-bottom: 2px solid var(--red);
+    }
+
+    .hdr-title {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      font-size: 11px;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--gray1);
+      letter-spacing: 0.02em;
+      border-left: 1px solid var(--border);
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .hdr-title strong {
+      color: var(--white);
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .hdr-right {
+      display: flex;
+      align-items: stretch;
+      border-left: 1px solid var(--border);
+    }
+
+    #btn-lang {
+      height: 100%;
+      padding: 0 14px;
+      background: none;
+      border: none;
+      border-right: 1px solid var(--border);
+      color: var(--gray1);
+      cursor: pointer;
+      font-size: 11px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+    }
+
+    #btn-lang:active {
+      color: var(--white);
+      background: var(--mid);
+    }
+
+    .hdr-logo {
+      width: 48px;
+      height: 48px;
       background: var(--red);
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 0 16px;
-      z-index: 1000;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-    
-    .hamburger-btn {
-      background: none;
-      border: none;
-      color: var(--white);
-      font-size: 24px;
-      cursor: pointer;
-      padding: 8px;
-      margin: -8px;
-    }
-    
-    .hamburger-btn:active {
-      opacity: 0.8;
-    }
-    
-    #top-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--white);
-      text-align: center;
-      flex: 1;
-    }
-    
-    #btn-lang {
-      background: rgba(255,255,255,0.2);
-      border: 1px solid rgba(255,255,255,0.4);
-      color: var(--white);
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
+      justify-content: center;
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 12px;
-      font-weight: 600;
-    }
-    
-    #btn-lang:active {
-      background: rgba(255,255,255,0.3);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--white);
+      flex-shrink: 0;
     }
     
     /* Layer panel (collapsible, overlays map) */
     #layer-panel {
       position: fixed;
-      top: 52px;
+      top: 48px;
       left: 0;
       right: 0;
       background: var(--dark);
@@ -198,7 +260,7 @@
     /* Map container */
     #map {
       position: fixed;
-      top: 52px;
+      top: 48px;
       left: 0;
       right: 0;
       bottom: 44px;
@@ -236,19 +298,6 @@
       font-size: 13px;
     }
     
-    .search-btn {
-      background: none;
-      border: none;
-      color: var(--white);
-      font-size: 20px;
-      cursor: pointer;
-      padding: 8px;
-      margin: -8px;
-    }
-    
-    .search-btn:active {
-      opacity: 0.8;
-    }
     
     /* Search overlay */
     #search-overlay {
@@ -438,27 +487,6 @@
       align-items: flex-end;
     }
     
-    .north-arrow {
-      width: 40px;
-      height: 40px;
-      background: var(--dark);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      color: var(--white);
-    }
-    
-    .scale-bar {
-      background: var(--dark);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 4px 8px;
-      font-size: 11px;
-      color: var(--gray1);
-    }
     
     /* Scrollable areas */
     ::-webkit-scrollbar {
@@ -483,9 +511,17 @@
 
 <!-- Top bar -->
 <div id="top-bar">
-  <button class="hamburger-btn" id="hamburger" title="Menu">≡</button>
-  <div id="top-title">Wasted Ecologies</div>
-  <button id="btn-lang" title="Toggle language">EN</button>
+  <div class="hdr-tabs">
+    <button class="hdr-tab active" id="hamburger">LAYERS</button>
+    <button class="hdr-tab" id="search-open-btn">SEARCH</button>
+  </div>
+  <div class="hdr-title">
+    <strong>Wasted Ecologies</strong>
+  </div>
+  <div class="hdr-right">
+    <button id="btn-lang" title="Toggle language">EN</button>
+    <div class="hdr-logo">WE</div>
+  </div>
 </div>
 
 <!-- Layer panel -->
@@ -505,15 +541,10 @@
   </div>
 </div>
 
-<div class="map-bottom-left">
-  <div class="north-arrow" id="north-arrow">↑N</div>
-  <div class="scale-bar" id="scale">0 km</div>
-</div>
 
 <!-- Bottom bar -->
 <div id="bottom-bar">
   <div id="site-count">0 sites</div>
-  <button class="search-btn" id="search-open-btn" title="Search">🔍</button>
 </div>
 
 <!-- Search overlay -->
@@ -538,6 +569,7 @@ const CAT_COUNTS={"Industriale / Produttivo": 70, "Carburanti / Idrocarburi": 56
 
 // ── MAP INIT ──
 const map = L.map('map',{center:[40.9,14.35],zoom:10,zoomControl:true});
+window._leafletMap = map; // expose for script 2
 
 // ── I18N ──
 let LANG = 'it';
@@ -630,7 +662,6 @@ const satellite  = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/serv
 const cartoDark  = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:19});
 
 cartoPosNL.addTo(map);
-L.control.scale({imperial:false,position:'bottomleft',maxWidth:120}).addTo(map);
 
 
 // ── RENDER SITES ──
@@ -718,7 +749,7 @@ function buildCatRows(){
     catContainer.appendChild(row);
   });
 }
-buildCatRows();
+// buildCatRows() removed – new system uses buildLayerPanel() called from DOMContentLoaded
 
 // ── TOGGLE EXPAND ──
 function toggleExpand(id) {
@@ -758,8 +789,9 @@ function switchTab(tab) {
   const st=document.getElementById('tab-search');
   st.style.display=tab==='search'?'flex':'none';
 }
-// init search tab styles
-document.getElementById('tab-search').style.display='none';
+// init search tab styles (guarded)
+const _tabSearch = document.getElementById('tab-search');
+if (_tabSearch) _tabSearch.style.display='none';
 
 // ── SEARCH & FILTER ──
 let q='';
@@ -781,9 +813,7 @@ function applyFilters() {
   renderList();
 }
 
-document.getElementById('search').addEventListener('input',function(){
-  q=this.value.toLowerCase(); applyFilters();
-});
+// Old search listener removed – new system handles search via #search-input
 
 // ── SITE POPUP HELPER ──
 function sitePopupHTML(s){
@@ -834,7 +864,7 @@ function resetAll() {
 }
 
 // ── INIT ──
-renderList();
+// renderList() removed – handled by new system
 map.fitBounds(SITES.map(s=>[s.lat,s.lon]),{padding:[40,40]});
 
 // ── BASEMAP SWITCHER ──
@@ -890,11 +920,7 @@ function swap3DBasemap(key) {
   } catch(e) { console.warn('3D basemap swap:', e); }
 }
 
-// ── NORTH ARROW ──
-function updateNorthArrow(bearing) {
-  const el = document.getElementById('north-arrow');
-  if (el) el.style.transform = 'rotate(' + (-bearing) + 'deg)';
-}
+// North arrow removed
 
 // ── 3D MODE ──
 let map3dOn = false;
@@ -1025,7 +1051,7 @@ function addTerrainAndData() {
     glMap.on('mouseenter','sites-pts',()=>{glMap.getCanvas().style.cursor='pointer';});
     glMap.on('mouseleave','sites-pts',()=>{glMap.getCanvas().style.cursor='';});
   }
-  glMap.on('rotate',()=>updateNorthArrow(glMap.getBearing()));
+  // glMap rotate listener removed (north arrow removed)
 }
 
 function init3D() {
@@ -1083,10 +1109,11 @@ function applyLang(){
   // Language button shows the *other* language you can switch to
   const btn=document.getElementById('btn-lang');
   if(btn) btn.textContent=LANG==='it'?'EN':'IT';
-  // Rebuild category rows (translated names)
-  buildCatRows();
-  // Refresh site list
-  renderList();
+  // Rebuild layer panel (translated names)
+  if (typeof buildLayerPanel === 'function') buildLayerPanel();
+  // Refresh site list (guarded – site-list may not exist in mobile layout)
+  const _sl = document.getElementById('site-list');
+  if (_sl) renderList();
 }
 
 function toggleLang(){
@@ -1148,14 +1175,29 @@ let currentBasemap = 'light';
 
 // Initialize map
 function initMap() {
-  map = L.map('map', {
-    center: [40.85, 14.27],
-    zoom: 9,
-    layers: [basemaps.light],
-    zoomControl: true,
-    attributionControl: true
-  });
-  
+  if (window._leafletMap) {
+    // Reuse the map already created by old script
+    map = window._leafletMap;
+    // Remove old system's tile and data layers so new system takes over
+    const toRemove = [];
+    map.eachLayer(l => toRemove.push(l));
+    toRemove.forEach(l => {
+      if (l instanceof L.TileLayer || l instanceof L.LayerGroup) {
+        map.removeLayer(l);
+      }
+    });
+    // Add new system's default tile
+    map.addLayer(basemaps.light);
+  } else {
+    map = L.map('map', {
+      center: [40.85, 14.27],
+      zoom: 9,
+      layers: [basemaps.light],
+      zoomControl: true,
+      attributionControl: true
+    });
+  }
+
   // Add basemap switcher
   basemapButtons.forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -1170,16 +1212,13 @@ function initMap() {
     });
   });
   
-  // Add scale control
-  L.control.scale({metric: true, imperial: false, position: 'bottomleft'}).addTo(map);
-  
-  // Update scale display
-  map.on('moveend zoomend', updateScaleDisplay);
+  // Scale control removed (not needed on mobile)
   
   // Close layer panel when map is tapped
   map.on('click', () => {
     if (layerPanel.classList.contains('active')) {
       layerPanel.classList.remove('active');
+      hamburger.classList.remove('active');
     }
   });
   
@@ -1313,9 +1352,11 @@ function addSiteMarker(site) {
   marker.on('click', () => {
     if (searchOverlay.classList.contains('active')) {
       searchOverlay.classList.remove('active');
+      searchBtn.classList.remove('active');
     }
     if (layerPanel.classList.contains('active')) {
       layerPanel.classList.remove('active');
+      hamburger.classList.remove('active');
     }
   });
   
@@ -1371,16 +1412,19 @@ function performSearch(query) {
 
 // Event listeners
 hamburger.addEventListener('click', () => {
-  layerPanel.classList.toggle('active');
+  const open = layerPanel.classList.toggle('active');
+  hamburger.classList.toggle('active', open);
 });
 
 searchBtn.addEventListener('click', () => {
   searchOverlay.classList.add('active');
+  searchBtn.classList.add('active');
   searchInput.focus();
 });
 
 searchCloseBtn.addEventListener('click', () => {
   searchOverlay.classList.remove('active');
+  searchBtn.classList.remove('active');
 });
 
 searchInput.addEventListener('input', (e) => {

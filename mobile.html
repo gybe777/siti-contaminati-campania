@@ -791,6 +791,8 @@ cartoPosNL.addTo(map);
 // ── RENDER SITES ──
 const markersLg=L.layerGroup().addTo(map);
 const mByIdx=new Map();
+window._markersLg = markersLg;
+window._mByIdx = mByIdx;
 function getCat(type){return TYPE_TO_CAT[type]||'Dismesso / Ex-Industriale';}
 function getColor(type){const cat=getCat(type);return(CATEGORIES[cat]||{color:'#888'}).color;}
 const hiddenCats=new Set();
@@ -1248,343 +1250,211 @@ function toggleLang(){
 </script>
 </body>
 
-// ============================================================================
-// Mobile-specific application code
-// ============================================================================
+<script>
+(function() {
+  'use strict';
 
-let map = null;
-let hiddenCats = new Set();
-let visibleSites = [];
-let LANG = 'it';
+  var map = window._leafletMap;
 
-// DOM elements
-const hamburger = document.getElementById('hamburger');
-const layerPanel = document.getElementById('layer-panel');
-const mapEl = document.getElementById('map');
-const bottomBar = document.getElementById('bottom-bar');
-const siteCountEl = document.getElementById('site-count');
-const searchBtn = document.getElementById('search-open-btn');
-const searchOverlay = document.getElementById('search-overlay');
-const searchCloseBtn = document.getElementById('search-close-btn');
-const searchInput = document.getElementById('search-input');
-const searchResults = document.getElementById('search-results');
-const basemapButtons = document.querySelectorAll('.basemap-btn');
-const langBtn = document.getElementById('btn-lang');
+  // ── BASEMAP SWITCHER ──
+  var tiles = {
+    light: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',  {attribution:'© OpenStreetMap © CARTO', maxZoom:19}),
+    osm:   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',               {attribution:'© OpenStreetMap contributors', maxZoom:19}),
+    sat:   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {attribution:'© Esri', maxZoom:19}),
+    dark:  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',   {attribution:'© OpenStreetMap © CARTO', maxZoom:19}),
+    maps:  L.tileLayer('https://tile.opentopomap.org/{z}/{x}/{y}.png',                    {attribution:'© OpenStreetMap contributors', maxZoom:19})
+  };
+  var activeBM = 'light';
 
-// Basemap definitions
-const basemaps = {
-  light: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '© OpenStreetMap © CARTO',
-    maxZoom: 19
-  }),
-  osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors',
-    maxZoom: 19
-  }),
-  sat: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    attribution: '© Esri',
-    maxZoom: 19
-  }),
-  dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '© OpenStreetMap © CARTO',
-    maxZoom: 19
-  }),
-  maps: L.tileLayer('https://tile.opentopomap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors © OpenTopoMap',
-    maxZoom: 19
-  })
-};
-
-let currentBasemap = 'light';
-
-// Initialize map
-function initMap() {
-  if (window._leafletMap) {
-    // Reuse the map already created by old script
-    map = window._leafletMap;
-    // Remove old system's tile and data layers so new system takes over
-    const toRemove = [];
-    map.eachLayer(l => toRemove.push(l));
-    toRemove.forEach(l => {
-      if (l instanceof L.TileLayer || l instanceof L.LayerGroup) {
-        map.removeLayer(l);
-      }
-    });
-    // Add new system's default tile
-    map.addLayer(basemaps.light);
-  } else {
-    map = L.map('map', {
-      center: [40.85, 14.27],
-      zoom: 9,
-      layers: [basemaps.light],
-      zoomControl: true,
-      attributionControl: true
-    });
+  if (map) {
+    var toRm = [];
+    map.eachLayer(function(l) { if (l instanceof L.TileLayer) toRm.push(l); });
+    toRm.forEach(function(l) { map.removeLayer(l); });
+    map.addLayer(tiles.light);
   }
 
-  // Add basemap switcher
-  basemapButtons.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const mapName = e.target.dataset.basemap;
-      if (mapName !== currentBasemap) {
-        map.removeLayer(basemaps[currentBasemap]);
-        map.addLayer(basemaps[mapName]);
-        currentBasemap = mapName;
-        basemapButtons.forEach(b => b.classList.remove('active'));
-        e.target.classList.add('active');
-      }
+  document.querySelectorAll('.basemap-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var k = btn.getAttribute('data-basemap');
+      if (!map || !tiles[k] || k === activeBM) return;
+      map.removeLayer(tiles[activeBM]);
+      map.addLayer(tiles[k]);
+      activeBM = k;
+      document.querySelectorAll('.basemap-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
     });
   });
-  
-  // Scale control removed (not needed on mobile)
-  
-  // Close layer panel when map is tapped
-  map.on('click', () => {
-    if (layerPanel.classList.contains('active')) {
-      layerPanel.classList.remove('active');
-      hamburger.classList.remove('active');
-    }
-  });
-  
-  applyFilters();
-}
 
-function updateScaleDisplay() {
-  const bounds = map.getBounds();
-  const maxLat = bounds.getNorth();
-  const minLat = bounds.getSouth();
-  const latDiff = maxLat - minLat;
-  const km = latDiff * 111; // rough conversion
-  const scaleEl = document.getElementById('scale');
-  if (scaleEl) {
-    scaleEl.textContent = km.toFixed(0) + ' km';
-  }
-}
-
-// Build layer panel
-function buildLayerPanel() {
-  const panel = document.getElementById('layer-panel');
-  panel.innerHTML = '';
-  
-  // Group sites by category
-  const cats = {};
-  SITES.forEach(site => {
-    const cat = site['Site Type'] || 'Unknown';
-    if (!cats[cat]) cats[cat] = [];
-    cats[cat].push(site);
-  });
-  
-  // Add category rows
-  Object.keys(cats).sort().forEach(cat => {
-    const isHidden = hiddenCats.has(cat);
-    const count = cats[cat].length;
-    
-    const section = document.createElement('div');
-    section.className = 'layer-section';
-    
-    const row = document.createElement('div');
-    row.className = 'layer-row';
-    
-    const color = document.createElement('div');
-    color.className = 'layer-color';
-    color.style.backgroundColor = getCategoryColor(cat);
-    
-    const name = document.createElement('div');
-    name.className = 'layer-name';
-    name.textContent = cat;
-    
-    const countEl = document.createElement('div');
-    countEl.className = 'layer-count';
-    countEl.textContent = count;
-    
-    const toggle = document.createElement('div');
-    toggle.className = 'layer-toggle ' + (isHidden ? 'closed' : 'open');
-    
-    row.appendChild(color);
-    row.appendChild(name);
-    row.appendChild(countEl);
-    row.appendChild(toggle);
-    
-    row.addEventListener('click', () => {
-      if (hiddenCats.has(cat)) {
-        hiddenCats.delete(cat);
-        toggle.classList.remove('closed');
-        toggle.classList.add('open');
+  // ── HAMBURGER / LAYER PANEL ──
+  var hamburger   = document.getElementById('hamburger');
+  var layerPanel  = document.getElementById('layer-panel');
+  if (hamburger && layerPanel) {
+    hamburger.addEventListener('click', function() {
+      var open = !layerPanel.classList.contains('active');
+      if (open) {
+        layerPanel.classList.add('active');
+        hamburger.classList.add('active');
       } else {
-        hiddenCats.add(cat);
-        toggle.classList.remove('open');
-        toggle.classList.add('closed');
+        layerPanel.classList.remove('active');
+        hamburger.classList.remove('active');
       }
-      applyFilters();
-      updateSiteCount();
     });
-    
-    section.appendChild(row);
-    panel.appendChild(section);
-  });
-}
+    if (map) {
+      map.on('click', function() {
+        layerPanel.classList.remove('active');
+        hamburger.classList.remove('active');
+      });
+    }
+  }
 
-function getCategoryColor(cat) {
-  const colors = {
+  // ── SEARCH ──
+  var searchBtn     = document.getElementById('search-open-btn');
+  var searchOverlay = document.getElementById('search-overlay');
+  var searchClose   = document.getElementById('search-close-btn');
+  var searchInput   = document.getElementById('search-input');
+  var searchResults = document.getElementById('search-results');
+
+  if (searchBtn && searchOverlay) {
+    searchBtn.addEventListener('click', function() {
+      if (layerPanel) { layerPanel.classList.remove('active'); }
+      if (hamburger)  { hamburger.classList.remove('active');  }
+      searchOverlay.classList.add('active');
+      searchBtn.classList.add('active');
+      if (searchInput) setTimeout(function() { searchInput.focus(); }, 150);
+    });
+  }
+  if (searchClose) {
+    searchClose.addEventListener('click', function() {
+      searchOverlay.classList.remove('active');
+      if (searchBtn) searchBtn.classList.remove('active');
+    });
+  }
+  if (searchInput && searchResults) {
+    searchInput.addEventListener('input', function() {
+      var q = searchInput.value.toLowerCase().trim();
+      searchResults.innerHTML = '';
+      if (!q) return;
+      var sites = (typeof SITES !== 'undefined') ? SITES : [];
+      var results = sites.filter(function(s) {
+        return (s.Name||'').toLowerCase().indexOf(q) > -1
+            || (s.Municipality||'').toLowerCase().indexOf(q) > -1
+            || (s.Code||'').toLowerCase().indexOf(q) > -1;
+      });
+      results.slice(0, 60).forEach(function(s) {
+        var d = document.createElement('div');
+        d.className = 'search-result-item';
+        d.innerHTML = '<div class="result-name">' + (s.Name||'') + '</div>'
+          + '<div class="result-municipality">' + (s.Municipality||'') + '</div>';
+        d.addEventListener('click', function() {
+          if (map && s.lat && s.lon) map.setView([+s.lat, +s.lon], 14);
+          if (searchOverlay) searchOverlay.classList.remove('active');
+          if (searchBtn)     searchBtn.classList.remove('active');
+        });
+        searchResults.appendChild(d);
+      });
+      if (!results.length) {
+        searchResults.innerHTML = '<div style="padding:16px;color:var(--gray2);font-size:13px">No results</div>';
+      }
+    });
+  }
+
+  // ── LANGUAGE TOGGLE ──
+  var langBtn = document.getElementById('btn-lang');
+  if (langBtn) {
+    langBtn.addEventListener('click', function() {
+      if (typeof toggleLang === 'function') {
+        toggleLang();
+      } else {
+        var cur = langBtn.textContent.trim();
+        langBtn.textContent = (cur === 'EN') ? 'IT' : 'EN';
+      }
+    });
+  }
+
+  // ── INFO PANEL ──
+  var infoBtn     = document.getElementById('info-open-btn');
+  var infoOverlay = document.getElementById('info-overlay');
+  var infoClose   = document.getElementById('info-close-btn');
+  if (infoBtn && infoOverlay) {
+    infoBtn.addEventListener('click', function() { infoOverlay.classList.add('active'); });
+  }
+  if (infoClose && infoOverlay) {
+    infoClose.addEventListener('click', function() { infoOverlay.classList.remove('active'); });
+  }
+
+  // ── LAYER PANEL ──
+  var colors = {
     'Attività Produttiva': '#FF6B35',
     'Industria a Rischio Incidente Rilevante': '#FF4500',
     'Attività Dismessa': '#FFA500',
     'Discarica Abusiva': '#FF1744',
     'Impianto di Depurazione': '#00BCD4'
   };
-  return colors[cat] || '#9C27B0';
-}
+  var hiddenCats = {};
 
-function applyFilters() {
-  // Clear existing markers
-  map.eachLayer(layer => {
-    if (layer instanceof L.Marker) {
-      map.removeLayer(layer);
-    }
-  });
-  
-  visibleSites = [];
-  
-  SITES.forEach(site => {
-    const cat = site['Site Type'];
-    if (!hiddenCats.has(cat)) {
-      visibleSites.push(site);
-      addSiteMarker(site);
-    }
-  });
-  
-  updateSiteCount();
-}
-
-function addSiteMarker(site) {
-  const marker = L.circleMarker([site.lat, site.lon], {
-    radius: 6,
-    fillColor: getCategoryColor(site['Site Type']),
-    color: '#fff',
-    weight: 1,
-    opacity: 1,
-    fillOpacity: 0.8
-  });
-  
-  const popupHtml = sitePopupHTML(site);
-  marker.bindPopup(popupHtml, {
-    minWidth: 260,
-    maxWidth: 300,
-    className: 'site-popup'
-  });
-  
-  marker.on('click', function() {
-    if (searchOverlay.classList.contains('active')) {
-      searchOverlay.classList.remove('active');
-      searchBtn.classList.remove('active');
-    }
-    if (layerPanel.classList.contains('active')) {
-      layerPanel.classList.remove('active');
-      hamburger.classList.remove('active');
-    }
-  });
-  
-  marker.addTo(map);
-}
-
-function sitePopupHTML(site) {
-  let html = `<div class="popup-title">${site.Name}</div>`;
-  html += `<div class="popup-section"><div class="popup-label">Municipality</div><div class="popup-value">${site.Municipality}</div></div>`;
-  html += `<div class="popup-section"><div class="popup-label">Type</div><div class="popup-value">${site['Site Type']}</div></div>`;
-  html += `<div class="popup-section"><div class="popup-label">Code</div><div class="popup-value">${site.Code}</div></div>`;
-  if (site['Contaminants - Soil']) {
-    html += `<div class="popup-section"><div class="popup-label">Soil</div><div class="popup-value">${site['Contaminants - Soil']}</div></div>`;
-  }
-  if (site['Contaminants - Water']) {
-    html += `<div class="popup-section"><div class="popup-label">Water</div><div class="popup-value">${site['Contaminants - Water']}</div></div>`;
-  }
-  if (site['Procedural Status']) {
-    html += `<div class="popup-section"><div class="popup-label">Status</div><div class="popup-value">${site['Procedural Status']}</div></div>`;
-  }
-  return html;
-}
-
-function updateSiteCount() {
-  siteCountEl.textContent = visibleSites.length + ' sites';
-}
-
-// Search functionality
-function performSearch(query) {
-  const results = visibleSites.filter(site => {
-    const q = query.toLowerCase();
-    return site.Name.toLowerCase().includes(q) ||
-           site.Municipality.toLowerCase().includes(q) ||
-           site.Code.toLowerCase().includes(q) ||
-           (site['Contaminants - Soil'] && site['Contaminants - Soil'].toLowerCase().includes(q)) ||
-           (site['Contaminants - Water'] && site['Contaminants - Water'].toLowerCase().includes(q));
-  });
-  
-  const resultsEl = document.getElementById('search-results');
-  resultsEl.innerHTML = '';
-  
-  results.forEach(site => {
-    const item = document.createElement('div');
-    item.className = 'search-result-item';
-    item.innerHTML = `<div class="result-name">${site.Name}</div><div class="result-municipality">${site.Municipality}</div>`;
-    item.addEventListener('click', () => {
-      map.setView([site.lat, site.lon], 14);
-      searchOverlay.classList.remove('active');
+  function buildLayerPanel() {
+    var panel = document.getElementById('layer-panel');
+    if (!panel) return;
+    var sites = (typeof SITES !== 'undefined') ? SITES : [];
+    if (!sites.length) return;
+    var cats = {};
+    sites.forEach(function(s) {
+      var c = s['Site Type'] || 'Unknown';
+      cats[c] = (cats[c] || 0) + 1;
     });
-    resultsEl.appendChild(item);
-  });
-}
-
-// Event listeners — iOS-safe (no two-argument classList.toggle)
-hamburger.addEventListener('click', function() {
-  var isOpen = layerPanel.classList.contains('active');
-  if (isOpen) {
-    layerPanel.classList.remove('active');
-    hamburger.classList.remove('active');
-  } else {
-    layerPanel.classList.add('active');
-    hamburger.classList.add('active');
+    panel.innerHTML = '';
+    Object.keys(cats).sort().forEach(function(cat) {
+      var color = colors[cat] || '#9C27B0';
+      var sec = document.createElement('div');
+      sec.className = 'layer-section';
+      var row = document.createElement('div');
+      row.className = 'layer-row';
+      row.innerHTML =
+        '<div class="layer-color" style="background:' + color + '"></div>'
+        + '<div class="layer-name">' + cat + '</div>'
+        + '<div class="layer-count">' + cats[cat] + '</div>'
+        + '<div class="layer-toggle open"></div>';
+      var tog = row.querySelector('.layer-toggle');
+      row.addEventListener('click', function() {
+        if (hiddenCats[cat]) {
+          hiddenCats[cat] = false;
+          tog.className = 'layer-toggle open';
+          filterMarkers();
+        } else {
+          hiddenCats[cat] = true;
+          tog.className = 'layer-toggle closed';
+          filterMarkers();
+        }
+      });
+      sec.appendChild(row);
+      panel.appendChild(sec);
+    });
   }
-});
 
-searchBtn.addEventListener('click', function() {
-  searchOverlay.classList.add('active');
-  searchBtn.classList.add('active');
-  // iOS Safari requires setTimeout to show keyboard
-  setTimeout(function() { searchInput.focus(); }, 100);
-});
+  function filterMarkers() {
+    var markersLg = window._markersLg;
+    var mByIdx    = window._mByIdx;
+    if (!markersLg || !mByIdx) return;
+    var sites = (typeof SITES !== 'undefined') ? SITES : [];
+    sites.forEach(function(s, i) {
+      var m = mByIdx.get(i);
+      if (!m) return;
+      var cat = s['Site Type'] || 'Unknown';
+      if (hiddenCats[cat]) {
+        if (markersLg.hasLayer(m)) markersLg.removeLayer(m);
+      } else {
+        if (!markersLg.hasLayer(m)) m.addTo(markersLg);
+      }
+    });
+  }
 
-searchCloseBtn.addEventListener('click', function() {
-  searchOverlay.classList.remove('active');
-  searchBtn.classList.remove('active');
-  searchInput.blur();
-});
+  buildLayerPanel();
 
-searchInput.addEventListener('input', (e) => {
-  performSearch(e.target.value);
-});
+  // ── SITE COUNT ──
+  var countEl  = document.getElementById('site-count');
+  var allSites = (typeof SITES !== 'undefined') ? SITES : [];
+  if (countEl) countEl.textContent = allSites.length + ' sites';
 
-langBtn.addEventListener('click', toggleLang);
-
-// Info overlay
-var infoOpenBtn = document.getElementById('info-open-btn');
-var infoOverlay = document.getElementById('info-overlay');
-var infoCloseBtn = document.getElementById('info-close-btn');
-if (infoOpenBtn && infoOverlay && infoCloseBtn) {
-  infoOpenBtn.addEventListener('click', function() {
-    infoOverlay.classList.add('active');
-  });
-  infoCloseBtn.addEventListener('click', function() {
-    infoOverlay.classList.remove('active');
-  });
-}
-
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-  try { initMap(); } catch(e) { console.warn('initMap error:', e); }
-  try { buildLayerPanel(); } catch(e) { console.warn('buildLayerPanel error:', e); }
-  try { updateSiteCount(); } catch(e) { console.warn('updateSiteCount error:', e); }
-});
+})();
 </script>
-
-</body>
 </html>

@@ -9,6 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-minimap/3.6.1/Control.MiniMap.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-minimap/3.6.1/Control.MiniMap.min.js"></script>
 <link href='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css' rel='stylesheet'/>
 <script src='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js'></script>
 <style>
@@ -351,7 +353,7 @@ body {
   z-index: 10 !important;
 }
 .leaflet-popup-close-button:hover { color: var(--white) !important; background: var(--red) !important; }
-.popup-inner { padding: 20px 24px; min-width: 280px; max-width: 340px; }
+.popup-inner { padding: 26px 32px 28px; min-width: 300px; max-width: 360px; }
 .popup-cat {
   font-size: 10px;
   font-weight: 600;
@@ -515,6 +517,24 @@ body {
   line-height: 1.6;
 }
 .leaflet-control-scale-line:not(:first-child) { display: none; }
+
+/* ── MINIMAP ── */
+.leaflet-control-minimap {
+  border: 1px solid var(--border2) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.5) !important;
+  border-radius: 0 !important;
+  margin-right: 10px !important;
+  margin-bottom: 10px !important;
+}
+.leaflet-control-minimap-toggle-display {
+  background: var(--dark) !important;
+  border: 1px solid var(--border2) !important;
+  border-radius: 0 !important;
+  width: 18px !important;
+  height: 18px !important;
+  bottom: 0 !important;
+  right: 0 !important;
+}
 
 /* ── NORTH ARROW ── */
 #north-arrow {
@@ -952,6 +972,18 @@ const cartoDark  = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/
 
 cartoPosNL.addTo(map);
 L.control.scale({imperial:false,position:'bottomleft',maxWidth:120}).addTo(map);
+
+// ── MINIMAP ──
+const miniTile = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',{attribution:'',maxZoom:19});
+new L.Control.MiniMap(miniTile,{
+  position:'bottomright',
+  width:160, height:120,
+  zoomLevelOffset:-5,
+  toggleDisplay:true,
+  minimized:false,
+  aimingRectOptions:{color:'#EE4238',weight:2,opacity:0.9,fillOpacity:0.05},
+  shadowRectOptions:{color:'#1c1a18',weight:1,opacity:0.5,fillOpacity:0.1}
+}).addTo(map);
 
 // ── RENDER SITES ──
 const markersLg=L.layerGroup().addTo(map);

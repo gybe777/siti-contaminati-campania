@@ -70,21 +70,27 @@
     }
 
     .hdr-tab {
-      height: 100%;
-      padding: 0 16px;
-      display: flex;
+      height: 48px;
+      padding: 0 14px;
+      display: inline-flex;
       align-items: center;
-      font-size: 11px;
+      justify-content: center;
+      font-size: 10px;
       font-family: 'IBM Plex Mono', monospace;
       font-weight: 600;
       letter-spacing: 0.08em;
       color: var(--gray2);
       cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
       user-select: none;
       background: none;
       border: none;
       border-bottom: 2px solid transparent;
       white-space: nowrap;
+      box-sizing: border-box;
     }
 
     .hdr-tab:active { color: var(--white); }
@@ -135,6 +141,10 @@
       font-family: 'IBM Plex Mono', monospace;
       font-weight: 600;
       letter-spacing: 0.08em;
+      -webkit-appearance: none;
+      appearance: none;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
 
     #btn-lang:active {
@@ -155,6 +165,11 @@
       letter-spacing: 0.04em;
       color: var(--white);
       flex-shrink: 0;
+      -webkit-appearance: none;
+      appearance: none;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      cursor: pointer;
     }
     
     /* Layer panel (collapsible, overlays map) */
@@ -486,8 +501,90 @@
       gap: 8px;
       align-items: flex-end;
     }
-    
-    
+
+    /* Info overlay */
+    #info-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--dark);
+      display: none;
+      flex-direction: column;
+      z-index: 2000;
+    }
+    #info-overlay.active { display: flex; }
+    .info-overlay-header {
+      height: 48px;
+      background: var(--dark);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .info-overlay-back {
+      background: none;
+      border: none;
+      color: var(--white);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 8px;
+      margin: -8px;
+      -webkit-appearance: none;
+      touch-action: manipulation;
+    }
+    .info-overlay-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--white);
+    }
+    .info-overlay-body {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .info-section {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .info-section:last-child { border-bottom: none; }
+    .info-author {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+    .info-tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--red);
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+    }
+    .info-link {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--red);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+    }
+    .info-section-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--gray2);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .info-text {
+      font-size: 13px;
+      color: var(--gray1);
+      line-height: 1.6;
+    }
+
     /* Scrollable areas */
     ::-webkit-scrollbar {
       width: 6px;
@@ -520,7 +617,7 @@
   </div>
   <div class="hdr-right">
     <button id="btn-lang" title="Toggle language">EN</button>
-    <div class="hdr-logo">WE</div>
+    <button class="hdr-logo" id="info-open-btn">WE</button>
   </div>
 </div>
 
@@ -554,6 +651,33 @@
     <input type="text" class="search-input" id="search-input" placeholder="Search...">
   </div>
   <div class="search-results" id="search-results"></div>
+</div>
+
+<!-- Info overlay -->
+<div id="info-overlay">
+  <div class="info-overlay-header">
+    <button class="info-overlay-back" id="info-close-btn">←</button>
+    <div class="info-overlay-title">WASTED ECOLOGIES</div>
+  </div>
+  <div class="info-overlay-body">
+    <div class="info-section">
+      <div class="info-author">Antonio del Giudice</div>
+      <div class="info-tag">PhD Research · Royal College of Art</div>
+      <a class="info-link" href="https://pgr.rca-architecture.com/people/antonio-del-giudice" target="_blank">pgr.rca-architecture.com ↗</a>
+    </div>
+    <div class="info-section">
+      <div class="info-section-title">Abstract</div>
+      <div class="info-text">This map visualises contaminated sites in the Campania region of Italy, sourced from ARPAC (Agenzia Regionale per la Protezione Ambientale della Campania). The research explores the politics of waste dumping and ecological degradation as a form of territorial governance.</div>
+    </div>
+    <div class="info-section">
+      <div class="info-section-title">Data Source</div>
+      <div class="info-text">ARPAC — Agenzia Regionale per la Protezione Ambientale della Campania</div>
+    </div>
+    <div class="info-section">
+      <div class="info-section-title">Project</div>
+      <div class="info-text">Wasted Ecologies is a PhD research project at the Royal College of Art investigating contaminated territories, infrastructure, and environmental governance in Southern Italy.</div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1349,7 +1473,7 @@ function addSiteMarker(site) {
     className: 'site-popup'
   });
   
-  marker.on('click', () => {
+  marker.on('click', function() {
     if (searchOverlay.classList.contains('active')) {
       searchOverlay.classList.remove('active');
       searchBtn.classList.remove('active');
@@ -1410,21 +1534,29 @@ function performSearch(query) {
   });
 }
 
-// Event listeners
-hamburger.addEventListener('click', () => {
-  const open = layerPanel.classList.toggle('active');
-  hamburger.classList.toggle('active', open);
+// Event listeners — iOS-safe (no two-argument classList.toggle)
+hamburger.addEventListener('click', function() {
+  var isOpen = layerPanel.classList.contains('active');
+  if (isOpen) {
+    layerPanel.classList.remove('active');
+    hamburger.classList.remove('active');
+  } else {
+    layerPanel.classList.add('active');
+    hamburger.classList.add('active');
+  }
 });
 
-searchBtn.addEventListener('click', () => {
+searchBtn.addEventListener('click', function() {
   searchOverlay.classList.add('active');
   searchBtn.classList.add('active');
-  searchInput.focus();
+  // iOS Safari requires setTimeout to show keyboard
+  setTimeout(function() { searchInput.focus(); }, 100);
 });
 
-searchCloseBtn.addEventListener('click', () => {
+searchCloseBtn.addEventListener('click', function() {
   searchOverlay.classList.remove('active');
   searchBtn.classList.remove('active');
+  searchInput.blur();
 });
 
 searchInput.addEventListener('input', (e) => {
@@ -1433,11 +1565,24 @@ searchInput.addEventListener('input', (e) => {
 
 langBtn.addEventListener('click', toggleLang);
 
+// Info overlay
+var infoOpenBtn = document.getElementById('info-open-btn');
+var infoOverlay = document.getElementById('info-overlay');
+var infoCloseBtn = document.getElementById('info-close-btn');
+if (infoOpenBtn && infoOverlay && infoCloseBtn) {
+  infoOpenBtn.addEventListener('click', function() {
+    infoOverlay.classList.add('active');
+  });
+  infoCloseBtn.addEventListener('click', function() {
+    infoOverlay.classList.remove('active');
+  });
+}
+
 // Initialize
-document.addEventListener('DOMContentLoaded', () => {
-  initMap();
-  buildLayerPanel();
-  updateSiteCount();
+document.addEventListener('DOMContentLoaded', function() {
+  try { initMap(); } catch(e) { console.warn('initMap error:', e); }
+  try { buildLayerPanel(); } catch(e) { console.warn('buildLayerPanel error:', e); }
+  try { updateSiteCount(); } catch(e) { console.warn('updateSiteCount error:', e); }
 });
 </script>
 

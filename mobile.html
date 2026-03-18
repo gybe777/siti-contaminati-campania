@@ -793,9 +793,7 @@ body {
     <div class="hdr-tab active" data-tab="layers" onclick="switchTab('layers')" data-i18n="tab_layers">Layers</div>
     <div class="hdr-tab" data-tab="search" onclick="switchTab('search')" data-i18n="tab_search">Cerca</div>
   </div>
-  <div class="hdr-title">
-    <span id="hdr-subtitle" data-i18n="hdr_subtitle">Siti Contaminati · Campania · ARPAC</span>
-  </div>
+  <div class="hdr-title"></div>
   <div class="hdr-right">
     <div class="hdr-count"><span data-i18n="hdr_visible">Visibili:</span> <span id="hdr-vis">241</span> / <span id="hdr-tot">241</span></div>
     <button class="btn-3d" id="btn-lang" onclick="toggleLang()" title="Switch language" style="margin-right:4px">EN</button>
@@ -1089,32 +1087,40 @@ cartoPosNL.addTo(map);
 L.control.scale({imperial:false,position:'bottomleft',maxWidth:120}).addTo(map);
 
 // ── MINIMAP ──
-const miniTile = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',{attribution:'',maxZoom:19});
-new L.Control.MiniMap(miniTile,{
-  position:'bottomright',
-  width:160, height:120,
-  zoomLevelOffset:-5,
-  toggleDisplay:true,
-  minimized:false,
-  aimingRectOptions:{color:'#EE4238',weight:2,opacity:0.9,fillOpacity:0.05},
-  shadowRectOptions:{color:'#1c1a18',weight:1,opacity:0.5,fillOpacity:0.1}
-}).addTo(map);
+try {
+  const miniTile = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',{attribution:'',maxZoom:19});
+  new L.Control.MiniMap(miniTile,{
+    position:'bottomright',
+    width:160, height:120,
+    zoomLevelOffset:-5,
+    toggleDisplay:true,
+    minimized:false,
+    aimingRectOptions:{color:'#EE4238',weight:2,opacity:0.9,fillOpacity:0.05},
+    shadowRectOptions:{color:'#1c1a18',weight:1,opacity:0.5,fillOpacity:0.1}
+  }).addTo(map);
+} catch(e) { console.warn('MiniMap unavailable:', e); }
 
 // ── RENDER SITES ──
-const markersLg=L.markerClusterGroup({
-  maxClusterRadius: 45,
-  spiderfyOnMaxZoom: true,
-  showCoverageOnHover: false,
-  zoomToBoundsOnClick: true,
-  iconCreateFunction: function(cluster){
-    const n=cluster.getChildCount();
-    const size=n<10?28:n<50?34:40;
-    return L.divIcon({
-      html:'<div style="width:'+size+'px;height:'+size+'px;background:#EE4238;border:1px solid rgba(255,255,255,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:\'IBM Plex Mono\',monospace;font-size:10px;font-weight:700;color:#fff;opacity:0.88;">'+n+'</div>',
-      className:'',iconSize:[size,size],iconAnchor:[size/2,size/2]
-    });
-  }
-}).addTo(map);
+function makeClusterIcon(cluster){
+  const n=cluster.getChildCount();
+  const size=n<10?28:n<50?34:40;
+  return L.divIcon({
+    html:'<div style="width:'+size+'px;height:'+size+'px;background:#EE4238;border:1px solid rgba(255,255,255,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:\'IBM Plex Mono\',monospace;font-size:10px;font-weight:700;color:#fff;opacity:0.88;">'+n+'</div>',
+    className:'',iconSize:[size,size],iconAnchor:[size/2,size/2]
+  });
+}
+let markersLg;
+try {
+  markersLg=L.markerClusterGroup({
+    maxClusterRadius:45, spiderfyOnMaxZoom:true,
+    showCoverageOnHover:false, zoomToBoundsOnClick:true,
+    iconCreateFunction:makeClusterIcon
+  });
+} catch(e) {
+  console.warn('markercluster unavailable, falling back to layerGroup');
+  markersLg=L.layerGroup();
+}
+markersLg.addTo(map);
 const mByIdx=new Map();
 function getCat(type){return TYPE_TO_CAT[type]||'Dismesso / Ex-Industriale';}
 function getColor(type){const cat=getCat(type);return(CATEGORIES[cat]||{color:'#888'}).color;}
@@ -1130,11 +1136,12 @@ SITES.forEach((s,i)=>{
 
 // ── RENDER SHP POLYGONS ──
 const shpColors={landfill:'#EE4238','masseria ferraioli':'#f97316','ecoballe acerr':'#eab308'};
+const shpLg=L.layerGroup().addTo(map);
 Object.entries(SHP_DATA).forEach(([name,polys])=>{
   polys.forEach(p=>{
     if(p.type==='polygon'){
       L.polygon(p.rings,{color:shpColors[name]||'#EE4238',weight:0.8,fillOpacity:0.1,fillColor:shpColors[name]||'#EE4238'})
-        .bindPopup('<div class="popup-wrap"><div class="popup-title">'+name+'</div></div>').addTo(markersLg);
+        .bindPopup('<div class="popup-wrap"><div class="popup-title">'+name+'</div></div>').addTo(shpLg);
     }
   });
 });
@@ -1399,13 +1406,13 @@ function toggle3D() {
     else {
       const c = map.getCenter();
       glMap.setCenter([c.lng, c.lat]);
-      glMap.setZoom(map.getZoom() - 0.5);
+      glMap.setZoom(map.getZoom());
       setTimeout(() => glMap.resize(), 60);
     }
   } else {
     if (glMap) {
       const c = glMap.getCenter();
-      map.setView([c.lat, c.lng], glMap.getZoom() + 0.5);
+      map.setView([c.lat, c.lng], glMap.getZoom());
     }
   }
 }
@@ -1473,10 +1480,28 @@ function addTerrainAndData() {
     const sitesFC={type:'FeatureCollection',features:SITES.map(s=>({
       type:'Feature', geometry:{type:'Point',coordinates:[s.lon,s.lat]},
       properties:{name:s.Name,municipality:s.Municipality,type:s['Site Type'],
-                  code:s.Code,status:s['Procedural Status'],col:getColor(s['Site Type'])}
+                  code:s.Code,status:s['Procedural Status'],col:'#EE4238'}
     }))};
-    glMap.addSource('sites3d',{type:'geojson',data:sitesFC});
-    // Register downward-arrow SDF icon (white silhouette; color applied via paint)
+    glMap.addSource('sites3d',{type:'geojson',data:sitesFC,
+      cluster:true, clusterMaxZoom:13, clusterRadius:45});
+    // Cluster circles
+    glMap.addLayer({id:'sites-clusters',type:'circle',source:'sites3d',
+      filter:['has','point_count'],
+      paint:{
+        'circle-color':'#EE4238',
+        'circle-radius':['step',['get','point_count'],14,10,18,50,22],
+        'circle-opacity':0.88,
+        'circle-stroke-width':1,
+        'circle-stroke-color':'rgba(255,255,255,0.25)'
+      }
+    });
+    // Cluster count labels
+    glMap.addLayer({id:'sites-cluster-count',type:'symbol',source:'sites3d',
+      filter:['has','point_count'],
+      layout:{'text-field':'{point_count_abbreviated}','text-size':10},
+      paint:{'text-color':'#ffffff'}
+    });
+    // Individual markers
     if(!glMap.hasImage('arrow-down')){
       const sz=20,cv=document.createElement('canvas');cv.width=sz;cv.height=sz;
       const cx=cv.getContext('2d');cx.clearRect(0,0,sz,sz);
@@ -1485,12 +1510,13 @@ function addTerrainAndData() {
       glMap.addImage('arrow-down',cx.getImageData(0,0,sz,sz),{sdf:true});
     }
     glMap.addLayer({id:'sites-pts',type:'symbol',source:'sites3d',
+      filter:['!',['has','point_count']],
       layout:{
         'icon-image':'arrow-down',
         'icon-size':['interpolate',['linear'],['zoom'],8,0.45,14,0.9],
         'icon-allow-overlap':true,'icon-ignore-placement':true
       },
-      paint:{'icon-color':['get','col'],'icon-opacity':0.9}
+      paint:{'icon-color':'#EE4238','icon-opacity':0.8}
     });
     glMap.on('click','sites-pts',e=>{
       const s=e.features[0].properties;
@@ -1514,6 +1540,7 @@ function init3D() {
 
   const baseStyle = isVector ? MAPS_VECTOR_STYLE : {
     version: 8,
+    glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
     sources: {
       carto: {
         type: 'raster',
@@ -1534,7 +1561,7 @@ function init3D() {
     container: 'map3d',
     style: baseStyle,
     center: [c.lng, c.lat],
-    zoom: map.getZoom() - 0.5,
+    zoom: map.getZoom(),
     pitch: 52, bearing: 0, antialias: true,
     dragRotate: true, touchZoomRotate: true
   });

@@ -678,7 +678,6 @@ body {
 .hdr-tabs  { display: none !important; }
 .hdr-title { display: none !important; }
 .hdr-count { display: none !important; }
-#btn-3d    { display: none !important; }
 
 /* Header: logo left, buttons right */
 #header {
@@ -1480,43 +1479,43 @@ function addTerrainAndData() {
     const sitesFC={type:'FeatureCollection',features:SITES.map(s=>({
       type:'Feature', geometry:{type:'Point',coordinates:[s.lon,s.lat]},
       properties:{name:s.Name,municipality:s.Municipality,type:s['Site Type'],
-                  code:s.Code,status:s['Procedural Status'],col:'#EE4238'}
+                  code:s.Code,status:s['Procedural Status']}
     }))};
     glMap.addSource('sites3d',{type:'geojson',data:sitesFC,
       cluster:true, clusterMaxZoom:13, clusterRadius:45});
-    // Cluster circles
+    // 1. Cluster circles — circle layer, no glyphs needed, always works
     glMap.addLayer({id:'sites-clusters',type:'circle',source:'sites3d',
       filter:['has','point_count'],
       paint:{
         'circle-color':'#EE4238',
         'circle-radius':['step',['get','point_count'],14,10,18,50,22],
         'circle-opacity':0.88,
-        'circle-stroke-width':1,
-        'circle-stroke-color':'rgba(255,255,255,0.25)'
+        'circle-stroke-width':1.5,
+        'circle-stroke-color':'rgba(255,255,255,0.35)'
       }
     });
-    // Cluster count labels
-    glMap.addLayer({id:'sites-cluster-count',type:'symbol',source:'sites3d',
-      filter:['has','point_count'],
-      layout:{'text-field':'{point_count_abbreviated}','text-size':10},
-      paint:{'text-color':'#ffffff'}
-    });
-    // Individual markers
-    if(!glMap.hasImage('arrow-down')){
-      const sz=20,cv=document.createElement('canvas');cv.width=sz;cv.height=sz;
-      const cx=cv.getContext('2d');cx.clearRect(0,0,sz,sz);
-      cx.fillStyle='#ffffff';cx.beginPath();
-      cx.moveTo(sz/2,sz);cx.lineTo(0,0);cx.lineTo(sz,0);cx.closePath();cx.fill();
-      glMap.addImage('arrow-down',cx.getImageData(0,0,sz,sz),{sdf:true});
-    }
-    glMap.addLayer({id:'sites-pts',type:'symbol',source:'sites3d',
+    // 2. Cluster count labels — symbol layer, wrapped so failure doesn't break circles
+    try {
+      glMap.addLayer({id:'sites-cluster-count',type:'symbol',source:'sites3d',
+        filter:['has','point_count'],
+        layout:{
+          'text-field':'{point_count_abbreviated}',
+          'text-size':11,
+          'text-font':['Noto Sans Regular','Arial Unicode MS Regular','Open Sans Regular']
+        },
+        paint:{'text-color':'#ffffff'}
+      });
+    } catch(e) { console.warn('3D cluster labels unavailable:', e.message); }
+    // 3. Individual unclustered points — circle, no image/glyph needed
+    glMap.addLayer({id:'sites-pts',type:'circle',source:'sites3d',
       filter:['!',['has','point_count']],
-      layout:{
-        'icon-image':'arrow-down',
-        'icon-size':['interpolate',['linear'],['zoom'],8,0.45,14,0.9],
-        'icon-allow-overlap':true,'icon-ignore-placement':true
-      },
-      paint:{'icon-color':'#EE4238','icon-opacity':0.8}
+      paint:{
+        'circle-color':'#EE4238',
+        'circle-radius':6,
+        'circle-opacity':0.85,
+        'circle-stroke-width':1,
+        'circle-stroke-color':'rgba(255,255,255,0.4)'
+      }
     });
     glMap.on('click','sites-pts',e=>{
       const s=e.features[0].properties;

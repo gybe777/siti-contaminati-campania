@@ -9,6 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-minimap/3.6.1/Control.MiniMap.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-minimap/3.6.1/Control.MiniMap.min.js"></script>
 <link href='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css' rel='stylesheet'/>
@@ -671,99 +673,86 @@ body {
 .maplibregl-canvas { border-radius: 0; }
 
 /* ── DESKTOP LINK BUTTON ── */
-/* ── MOBILE CONTROLS (desktop: hidden) ── */
-#mob-search-bar, #mob-layers-toggle { display: none; }
+/* Desktop: hide mobile-only elements */
+#mob-sidebar-search { display: none; }
 
 /* ── MOBILE LAYOUT ── */
 @media (max-width: 768px) {
 
-  /* Simplify header: hide desktop tabs/title/count */
+  /* Clean header: hide desktop tabs/title/count */
   .hdr-tabs  { display: none !important; }
   .hdr-title { display: none !important; }
   .hdr-count { display: none !important; }
   #btn-3d    { display: none !important; }
   #header    { height: 44px !important; }
 
-  /* ── Search bar (below header) ── */
-  #mob-search-bar {
-    display: flex;
-    align-items: center;
-    position: fixed;
-    top: 44px; left: 0; right: 0;
-    height: 42px;
-    background: var(--dark);
-    border-bottom: 1px solid var(--border);
-    padding: 0 10px;
-    z-index: 900;
+  /* Wasted Ecologies logo becomes the tap target */
+  .hdr-logo {
+    cursor: pointer !important;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
   }
-  #mob-search-bar input {
+  .hdr-logo::after {
+    content: ' ▾';
+    font-size: 9px;
+    opacity: 0.55;
+    transition: content 0.2s;
+  }
+  .hdr-logo.mob-open::after { content: ' ▴'; }
+
+  /* Search row inside panel (mobile only) */
+  #mob-sidebar-search {
+    display: flex !important;
+    align-items: center;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    background: var(--dark);
+  }
+  #mob-sidebar-search input {
     width: 100%;
     background: var(--mid);
     border: 1px solid var(--border2);
     color: var(--white);
     font-family: var(--font);
-    font-size: 16px; /* prevents iOS auto-zoom */
+    font-size: 16px;
     padding: 7px 10px;
     outline: none;
     -webkit-appearance: none;
   }
-  #mob-search-bar input::placeholder { color: var(--gray2); }
+  #mob-sidebar-search input::placeholder { color: var(--gray2); }
 
-  /* ── Layers toggle bar ── */
-  #mob-layers-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: fixed;
-    top: 86px; left: 0; right: 0;
-    height: 36px;
-    background: var(--mid);
-    border-bottom: 1px solid var(--border);
-    padding: 0 14px;
-    z-index: 900;
-    cursor: pointer;
-    touch-action: manipulation;
-    font-family: var(--mono);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    color: var(--gray1);
-  }
-  #mob-layers-toggle:active { background: var(--border); }
-  #mob-chev { font-size: 13px; transition: transform 0.2s; }
-  #mob-layers-toggle.open #mob-chev { transform: rotate(180deg); }
-
-  /* ── Sidebar as full-width dropdown ── */
+  /* Sidebar = the dropdown panel, slides down from header */
   #sidebar {
     position: fixed !important;
-    top: 122px !important;
+    top: 44px !important;
     left: 0 !important;
     width: 100% !important;
     height: auto !important;
-    max-height: calc(100vh - 122px) !important;
+    max-height: calc(100vh - 44px) !important;
     z-index: 850 !important;
     transform: translateY(-100vh);
     transition: transform 0.3s ease;
     display: flex !important;
     flex-direction: column;
     overflow-y: auto;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.6);
   }
   #sidebar.mob-open { transform: translateY(0); }
 
-  /* Hide search tab inside sidebar (search is in mob-search-bar now) */
+  /* Hide desktop search tab (search is inside the panel now) */
   #tab-search { display: none !important; }
 
-  /* ── Map fills space below fixed bars ── */
+  /* Map fills full screen below header */
   #map-outer {
     position: fixed !important;
-    top: 122px !important;
+    top: 44px !important;
     left: 0 !important; right: 0 !important; bottom: 0 !important;
     width: 100% !important;
-    height: calc(100vh - 122px) !important;
+    height: calc(100vh - 44px) !important;
   }
 
-  /* Larger touch targets for basemap buttons */
   .bm-btn { min-width: 44px !important; min-height: 40px !important; padding: 0 10px !important; }
   .btn-3d { min-height: 34px !important; }
 }
@@ -774,7 +763,7 @@ body {
 
 <!-- HEADER -->
 <div id="header">
-  <div class="hdr-logo">Wasted Ecologies</div>
+  <div class="hdr-logo" id="mob-logo" onclick="mobTogglePanel()">Wasted Ecologies</div>
   <div class="hdr-tabs">
     <div class="hdr-tab active" data-tab="layers" onclick="switchTab('layers')" data-i18n="tab_layers">Layers</div>
     <div class="hdr-tab" data-tab="search" onclick="switchTab('search')" data-i18n="tab_search">Cerca</div>
@@ -790,22 +779,16 @@ body {
   </div>
 </div>
 
-<!-- MOBILE: Search bar -->
-<div id="mob-search-bar">
-  <input type="text" id="mob-search-input" placeholder="Search by name, municipality, contaminant…" autocomplete="off" autocorrect="off" spellcheck="false" />
-</div>
-
-<!-- MOBILE: Layers toggle -->
-<div id="mob-layers-toggle" onclick="mobToggleLayers()">
-  <span>LAYERS</span>
-  <span id="mob-chev">▾</span>
-</div>
-
 <!-- LAYOUT -->
 <div class="layout">
 
   <!-- SIDEBAR -->
   <div id="sidebar">
+
+    <!-- MOBILE: search at top of panel -->
+    <div id="mob-sidebar-search">
+      <input type="text" id="mob-search-input" placeholder="Search by name, municipality, contaminant…" autocomplete="off" autocorrect="off" spellcheck="false" />
+    </div>
 
     <!-- Layer tab panel -->
     <div id="tab-layers">
@@ -817,7 +800,7 @@ body {
       <!-- 1. SITI CONTAMINATI (expandable with sub-categories) -->
       <div class="layer-section" id="section-siti">
         <div class="layer-row active" id="row-siti" onclick="toggleExpand('siti')">
-          <div class="lr-icon"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><polygon points="8,2 15,14 1,14" fill="#EE4238" opacity="0.9"/></svg></div>
+          <div class="lr-icon"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><polygon points="8,14 15,2 1,2" fill="#EE4238" opacity="0.9"/></svg></div>
           <span class="lr-name" data-i18n="layer_siti">Siti Contaminati Prioritari</span>
           <span class="lr-count" id="cnt-siti">241</span>
           <span class="lr-chevron">›</span>
@@ -832,11 +815,8 @@ body {
       <div class="layer-section">
         <div class="layer-row" id="row-beni" onclick="toggleLayer('beni', this)">
           <div class="lr-icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <line x1="8" y1="14" x2="8" y2="6" stroke="#a855f7" stroke-width="1.4" stroke-linecap="round"/>
-            <ellipse cx="8" cy="4" rx="2" ry="2.2" fill="#a855f7" opacity="0.9"/>
-            <path d="M8 11 C8 11 5.5 10.5 5 9 C6.8 8.8 8 10.2 8 10.2" fill="#a855f7" opacity="0.75" stroke="none"/>
-            <path d="M8 9.5 C8 9.5 10.5 9 11 7.5 C9.2 7.3 8 8.7 8 8.7" fill="#a855f7" opacity="0.75" stroke="none"/>
-            <path d="M8 8 C8 8 5.5 7.5 5 6 C6.8 5.8 8 7.2 8 7.2" fill="#a855f7" opacity="0.6" stroke="none"/>
+            <line x1="5" y1="3" x2="5" y2="13" stroke="#a855f7" stroke-width="1.2" opacity="0.6"/>
+            <polygon points="5,3 13,6 5,9" fill="#a855f7" opacity="0.5"/>
           </svg></div>
           <span class="lr-name" data-i18n="layer_beni">Beni Agricoli Confiscati</span>
           <span class="lr-count">21</span>
@@ -850,7 +830,7 @@ body {
       <!-- 3. COMUNI INDAGATI -->
       <div class="layer-section">
         <div class="layer-row" id="row-comuni" onclick="toggleLayer('comuni', this)">
-          <div class="lr-icon"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><polygon points="8,2 15,14 1,14" fill="#0ea5e9" opacity="0.9"/></svg></div>
+          <div class="lr-icon"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="10" height="10" fill="#0ea5e9" fill-opacity="0.3" stroke="#0ea5e9" stroke-width="1.5"/></svg></div>
           <span class="lr-name" data-i18n="layer_comuni">Comuni Indagati</span>
           <span class="lr-count">70</span>
           <span class="lr-chevron">›</span>
@@ -863,7 +843,7 @@ body {
       <!-- 4. PARTICELLE CLASSIFICATE -->
       <div class="layer-section">
         <div class="layer-row" id="row-part" onclick="toggleLayer('part', this)">
-          <div class="lr-icon"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><polygon points="8,2 15,14 1,14" fill="#dc2626" opacity="0.9"/></svg></div>
+          <div class="lr-icon"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="10" height="10" fill="#dc2626" fill-opacity="0.3" stroke="#dc2626" stroke-width="1.5"/></svg></div>
           <span class="lr-name" data-i18n="layer_part">Particelle Classificate</span>
           <span class="lr-count">642</span>
           <span class="lr-chevron">›</span>
@@ -876,7 +856,7 @@ body {
       <!-- 5. SITI SPECIFICI -->
       <div class="layer-section">
         <div class="layer-row" id="row-spec" onclick="toggleExpand('spec')">
-          <div class="lr-icon"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><polygon points="8,2 15,14 1,14" fill="#f97316" opacity="0.9"/></svg></div>
+          <div class="lr-icon"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="10" height="10" fill="#f97316" fill-opacity="0.3" stroke="#f97316" stroke-width="1.5"/></svg></div>
           <span class="lr-name" data-i18n="layer_spec">Siti Specifici</span>
           <span class="lr-count">3</span>
           <span class="lr-chevron">›</span>
@@ -1096,7 +1076,20 @@ new L.Control.MiniMap(miniTile,{
 }).addTo(map);
 
 // ── RENDER SITES ──
-const markersLg=L.layerGroup().addTo(map);
+const markersLg=L.markerClusterGroup({
+  maxClusterRadius: 45,
+  spiderfyOnMaxZoom: true,
+  showCoverageOnHover: false,
+  zoomToBoundsOnClick: true,
+  iconCreateFunction: function(cluster){
+    const n=cluster.getChildCount();
+    const size=n<10?28:n<50?34:40;
+    return L.divIcon({
+      html:'<div style="width:'+size+'px;height:'+size+'px;background:#EE4238;border:1px solid rgba(255,255,255,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:\'IBM Plex Mono\',monospace;font-size:10px;font-weight:700;color:#fff;opacity:0.88;">'+n+'</div>',
+      className:'',iconSize:[size,size],iconAnchor:[size/2,size/2]
+    });
+  }
+}).addTo(map);
 const mByIdx=new Map();
 function getCat(type){return TYPE_TO_CAT[type]||'Dismesso / Ex-Industriale';}
 function getColor(type){const cat=getCat(type);return(CATEGORIES[cat]||{color:'#888'}).color;}
@@ -1104,7 +1097,7 @@ const hiddenCats=new Set();
 SITES.forEach((s,i)=>{
   const col=getColor(s['Site Type']);
   const m=L.marker([s.lat,s.lon],{
-    icon:L.divIcon({className:'',html:'<svg width="10" height="12" viewBox="0 0 10 12" xmlns="http://www.w3.org/2000/svg" style="display:block"><polygon points="5,12 0,0 10,0" fill="'+col+'" opacity="0.9"/></svg>',iconSize:[10,12],iconAnchor:[5,6]})
+    icon:L.divIcon({className:'',html:'<svg width="10" height="12" viewBox="0 0 10 12" xmlns="http://www.w3.org/2000/svg" style="display:block"><polygon points="5,12 0,0 10,0" fill="#EE4238" opacity="0.8"/></svg>',iconSize:[10,12],iconAnchor:[5,6]})
   }).bindPopup(()=>sitePopupHTML(s),{maxWidth:320});
   m.addTo(markersLg);
   mByIdx.set(i,m);
@@ -1115,7 +1108,7 @@ const shpColors={landfill:'#EE4238','masseria ferraioli':'#f97316','ecoballe ace
 Object.entries(SHP_DATA).forEach(([name,polys])=>{
   polys.forEach(p=>{
     if(p.type==='polygon'){
-      L.polygon(p.rings,{color:shpColors[name]||'#EE4238',weight:2,fillOpacity:0.3,fillColor:shpColors[name]||'#EE4238'})
+      L.polygon(p.rings,{color:shpColors[name]||'#EE4238',weight:0.8,fillOpacity:0.1,fillColor:shpColors[name]||'#EE4238'})
         .bindPopup('<div class="popup-wrap"><div class="popup-title">'+name+'</div></div>').addTo(markersLg);
     }
   });
@@ -1125,7 +1118,7 @@ Object.entries(SHP_DATA).forEach(([name,polys])=>{
 const beniLg=L.layerGroup();
 let beniOn=true;
 BENI.forEach(b=>{
-  L.circleMarker([b.lat,b.lon],{radius:7,color:'#a855f7',weight:2,fillColor:'#a855f7',fillOpacity:0.75})
+  L.marker([b.lat,b.lon],{icon:L.divIcon({className:'',html:'<svg width="13" height="20" viewBox="0 0 8 13" xmlns="http://www.w3.org/2000/svg" style="display:block"><line x1="2" y1="1" x2="2" y2="12" stroke="#a855f7" stroke-width="1.2" opacity="0.6"/><polygon points="2,1 8,3.5 2,6" fill="#a855f7" opacity="0.5"/></svg>',iconSize:[13,20],iconAnchor:[2,20]})})
     .bindPopup(()=>'<div class="popup-wrap"><div class="popup-title">'+T('p_bene')+'</div>'
       +'<div class="popup-row"><span class="popup-label">'+T('p_id')+'</span><span>'+b.props.id+'</span></div></div>')
     .addTo(beniLg);
@@ -1136,7 +1129,7 @@ beniLg.addTo(map);
 const comuniLg=L.layerGroup();
 let comuniOn=true;
 COMUNI.forEach(c=>{
-  L.polygon(c.rings,{color:'#0ea5e9',weight:1.5,fillColor:'#0ea5e9',fillOpacity:0.15})
+  L.polygon(c.rings,{color:'#0ea5e9',weight:0.8,fillColor:'#0ea5e9',fillOpacity:0.06})
     .bindPopup(()=>'<div class="popup-wrap"><div class="popup-title">'+(c.props.comune||T('p_comune'))+'</div>'
       +'<div class="popup-row"><span class="popup-label">'+T('p_provincia')+'</span><span>'+(c.props.sigla_pro||'')+'</span></div></div>')
     .addTo(comuniLg);
@@ -1148,7 +1141,7 @@ const partLg=L.layerGroup();
 let partOn=true;
 PARTICELLE.forEach(p=>{
   const hw=(p.props.rifiuti==='SI');
-  L.polygon(p.rings,{color:hw?'#dc2626':'#78716c',weight:1,fillColor:hw?'#dc2626':'#78716c',fillOpacity:0.25})
+  L.polygon(p.rings,{color:'#EAB308',weight:0.7,fillColor:'#EAB308',fillOpacity:0.1})
     .bindPopup(()=>'<div class="popup-wrap"><div class="popup-title">'+T('p_particella')+'</div>'
       +'<div class="popup-row"><span class="popup-label">'+T('p_rifiuti')+'</span><span>'+(hw?T('yes'):T('no'))+'</span></div>'
       +(p.props.decreto?'<div class="popup-row"><span class="popup-label">'+T('p_decreto')+'</span><span>'+p.props.decreto+'</span></div>':'')
@@ -1167,7 +1160,7 @@ function buildCatRows(){
     const row=document.createElement('div');
     row.className='sub-row'+(hiddenCats.has(cat)?' off':'');
     row.dataset.cat=cat;
-    row.innerHTML='<div class="sub-icon"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><polygon points="8,2 15,14 1,14" fill="'+info.color+'" opacity="0.9"/></svg></div>'
+    row.innerHTML='<div class="sub-icon"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><polygon points="8,14 15,2 1,2" fill="'+info.color+'" opacity="0.9"/></svg></div>'
       +'<span class="sub-name">'+catName(cat)+'</span>'
       +'<span class="sub-count">'+count+'</span>';
     row.onclick=e=>{
@@ -1419,8 +1412,8 @@ function addTerrainAndData() {
       type:'Feature', geometry:{type:'Polygon', coordinates:toCoords(c.rings)}, properties:c.props
     }))};
     glMap.addSource('comuni',{type:'geojson',data:comuniFC});
-    glMap.addLayer({id:'comuni-fill',type:'fill',source:'comuni',paint:{'fill-color':'#0ea5e9','fill-opacity':0.18}});
-    glMap.addLayer({id:'comuni-line',type:'line',source:'comuni',paint:{'line-color':'#0ea5e9','line-width':1.2,'line-opacity':0.6}});
+    glMap.addLayer({id:'comuni-fill',type:'fill',source:'comuni',paint:{'fill-color':'#0ea5e9','fill-opacity':0.07}});
+    glMap.addLayer({id:'comuni-line',type:'line',source:'comuni',paint:{'line-color':'#0ea5e9','line-width':0.8,'line-opacity':0.35}});
   }
   if (!glMap.getSource('particelle')) {
     const partFC = {type:'FeatureCollection', features: PARTICELLE.map(p=>({
@@ -1428,7 +1421,7 @@ function addTerrainAndData() {
     }))};
     glMap.addSource('particelle',{type:'geojson',data:partFC});
     glMap.addLayer({id:'part-fill',type:'fill',source:'particelle',
-      paint:{'fill-color':['case',['==',['get','rifiuti'],'SI'],'#dc2626','#78716c'],'fill-opacity':0.3}});
+      paint:{'fill-color':'#EAB308','fill-opacity':0.12}});
   }
   if (!glMap.getSource('shp')) {
     const shpFeat=[];
@@ -1440,8 +1433,8 @@ function addTerrainAndData() {
       });});
     });
     glMap.addSource('shp',{type:'geojson',data:{type:'FeatureCollection',features:shpFeat}});
-    glMap.addLayer({id:'shp-fill',type:'fill',source:'shp',paint:{'fill-color':['get','color'],'fill-opacity':0.35}});
-    glMap.addLayer({id:'shp-line',type:'line',source:'shp',paint:{'line-color':['get','color'],'line-width':2}});
+    glMap.addLayer({id:'shp-fill',type:'fill',source:'shp',paint:{'fill-color':['get','color'],'fill-opacity':0.1}});
+    glMap.addLayer({id:'shp-line',type:'line',source:'shp',paint:{'line-color':['get','color'],'line-width':0.8}});
   }
   if (!glMap.getSource('beni')) {
     const beniFC={type:'FeatureCollection',features:BENI.map(b=>({
@@ -1449,7 +1442,7 @@ function addTerrainAndData() {
     }))};
     glMap.addSource('beni',{type:'geojson',data:beniFC});
     glMap.addLayer({id:'beni-pts',type:'circle',source:'beni',
-      paint:{'circle-radius':7,'circle-color':'#a855f7','circle-stroke-width':2,'circle-stroke-color':'rgba(255,255,255,0.7)'}});
+      paint:{'circle-radius':4,'circle-color':'#a855f7','circle-opacity':0.5,'circle-stroke-width':1,'circle-stroke-color':'#a855f7','circle-stroke-opacity':0.4}});
   }
   if (!glMap.getSource('sites3d')) {
     const sitesFC={type:'FeatureCollection',features:SITES.map(s=>({
@@ -1558,22 +1551,22 @@ function toggleLang(){
 
 </script>
 <script>
-/* ── MOBILE: Layers dropdown toggle ── */
-function mobToggleLayers() {
+/* ── MOBILE: toggle panel via Wasted Ecologies tap ── */
+function mobTogglePanel() {
   if (window.innerWidth > 768) return;
-  var sb  = document.getElementById('sidebar');
-  var tog = document.getElementById('mob-layers-toggle');
+  var sb   = document.getElementById('sidebar');
+  var logo = document.getElementById('mob-logo');
   if (!sb) return;
   if (sb.classList.contains('mob-open')) {
     sb.classList.remove('mob-open');
-    if (tog) tog.classList.remove('open');
+    if (logo) logo.classList.remove('mob-open');
   } else {
     sb.classList.add('mob-open');
-    if (tog) tog.classList.add('open');
+    if (logo) logo.classList.add('mob-open');
   }
 }
 
-/* ── MOBILE: wire search input to existing search logic ── */
+/* ── MOBILE: wire panel search to existing search logic ── */
 document.addEventListener('DOMContentLoaded', function() {
   var mobIn  = document.getElementById('mob-search-input');
   var deskIn = document.getElementById('search');
@@ -1584,15 +1577,15 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  /* Close layers panel when map is tapped */
+  /* Close panel when map is tapped */
   var mapOuter = document.getElementById('map-outer');
   if (mapOuter) {
     mapOuter.addEventListener('click', function() {
       if (window.innerWidth <= 768) {
-        var sb  = document.getElementById('sidebar');
-        var tog = document.getElementById('mob-layers-toggle');
-        if (sb)  sb.classList.remove('mob-open');
-        if (tog) tog.classList.remove('open');
+        var sb   = document.getElementById('sidebar');
+        var logo = document.getElementById('mob-logo');
+        if (sb)   sb.classList.remove('mob-open');
+        if (logo) logo.classList.remove('mob-open');
       }
     });
   }

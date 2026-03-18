@@ -655,13 +655,15 @@ body {
 
 /* ── 3D TOGGLE BUTTON ── */
 .btn-3d {
-  background: var(--mid); border: 1px solid var(--border2);
+  background: var(--mid); border: none;
+  border-left: 1px solid var(--border);
   color: var(--gray1); font-family: var(--mono);
-  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
-  padding: 4px 11px; cursor: pointer; transition: all 0.15s;
-  border-radius: 0; margin-right: 8px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  padding: 0 16px; height: 48px; cursor: pointer; transition: color 0.15s, background 0.15s;
+  border-radius: 0; margin: 0; display: flex; align-items: center;
+  text-decoration: none; -webkit-appearance: none;
 }
-.btn-3d:hover { color: var(--white); border-color: var(--gray2); }
+.btn-3d:hover { color: var(--white); background: var(--border); }
 .btn-3d.active { background: var(--red); border-color: var(--red); color: #fff; }
 
 /* ── MAPLIBRE overrides ── */
@@ -688,9 +690,9 @@ body {
   </div>
   <div class="hdr-right">
     <div class="hdr-count"><span data-i18n="hdr_visible">Visibili:</span> <span id="hdr-vis">241</span> / <span id="hdr-tot">241</span></div>
-    <button class="btn-3d" id="btn-lang" onclick="toggleLang()" title="Switch language" style="margin-right:4px">EN</button>
-    <a href="mobile.html" class="btn-3d" id="mob-link" title="Open mobile version" style="margin-right:4px; text-decoration:none;">MOBILE</a>
     <button class="btn-3d" id="btn-3d" onclick="toggle3D()" title="Toggle 3D terrain view">3D</button>
+    <button class="btn-3d" id="btn-lang" onclick="toggleLang()" title="Switch language">EN</button>
+    <a href="mobile.html" class="btn-3d" id="mob-link" title="Open mobile version">MOBILE</a>
   </div>
 </div>
 

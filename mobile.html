@@ -672,90 +672,115 @@ body {
 .maplibregl-ctrl-attrib a { color: var(--gray2) !important; }
 .maplibregl-canvas { border-radius: 0; }
 
-/* ── DESKTOP LINK BUTTON ── */
-/* Desktop: hide mobile-only elements */
-#mob-sidebar-search { display: none; }
+/* ── MOBILE LAYOUT (applied unconditionally — this file is mobile only) ── */
 
-/* ── MOBILE LAYOUT ── */
-@media (max-width: 768px) {
+/* Hide desktop-only header elements */
+.hdr-tabs  { display: none !important; }
+.hdr-title { display: none !important; }
+.hdr-count { display: none !important; }
+#btn-3d    { display: none !important; }
 
-  /* Clean header: hide desktop tabs/title/count */
-  .hdr-tabs  { display: none !important; }
-  .hdr-title { display: none !important; }
-  .hdr-count { display: none !important; }
-  #btn-3d    { display: none !important; }
-  #header    { height: 44px !important; }
-
-  /* Wasted Ecologies logo becomes the tap target */
-  .hdr-logo {
-    cursor: pointer !important;
-    touch-action: manipulation;
-    -webkit-user-select: none;
-    user-select: none;
-  }
-  .hdr-logo::after {
-    content: ' ▾';
-    font-size: 9px;
-    opacity: 0.55;
-    transition: content 0.2s;
-  }
-  .hdr-logo.mob-open::after { content: ' ▴'; }
-
-  /* Search row inside panel (mobile only) */
-  #mob-sidebar-search {
-    display: flex !important;
-    align-items: center;
-    padding: 8px 10px;
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-    background: var(--dark);
-  }
-  #mob-sidebar-search input {
-    width: 100%;
-    background: var(--mid);
-    border: 1px solid var(--border2);
-    color: var(--white);
-    font-family: var(--font);
-    font-size: 16px;
-    padding: 7px 10px;
-    outline: none;
-    -webkit-appearance: none;
-  }
-  #mob-sidebar-search input::placeholder { color: var(--gray2); }
-
-  /* Sidebar = the dropdown panel, slides down from header */
-  #sidebar {
-    position: fixed !important;
-    top: 44px !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: auto !important;
-    max-height: calc(100vh - 44px) !important;
-    z-index: 850 !important;
-    transform: translateY(-100vh);
-    transition: transform 0.3s ease;
-    display: flex !important;
-    flex-direction: column;
-    overflow-y: auto;
-    box-shadow: 0 6px 24px rgba(0,0,0,0.6);
-  }
-  #sidebar.mob-open { transform: translateY(0); }
-
-  /* Hide desktop search tab (search is inside the panel now) */
-  #tab-search { display: none !important; }
-
-  /* Map fills full screen below header */
-  #map-outer {
-    position: fixed !important;
-    top: 44px !important;
-    left: 0 !important; right: 0 !important; bottom: 0 !important;
-    width: 100% !important;
-    height: calc(100vh - 44px) !important;
-  }
-
-  .bm-btn { min-width: 44px !important; min-height: 40px !important; padding: 0 10px !important; }
-  .btn-3d { min-height: 34px !important; }
+/* Header: logo left, buttons right */
+#header {
+  height: 54px !important;
+  justify-content: space-between !important;
 }
+
+/* Wasted Ecologies = tap to open panel */
+.hdr-logo {
+  width: 270px !important;
+  height: 54px !important;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  position: relative;
+}
+
+/* EN + DESKTOP — top-right, same style as logo but dark */
+.hdr-right {
+  display: flex !important;
+  align-items: stretch !important;
+  border-left: none !important;
+  margin-right: 0 !important;
+  gap: 0 !important;
+}
+#btn-lang, #mob-link {
+  height: 54px !important;
+  padding: 0 18px !important;
+  background: var(--mid) !important;
+  color: var(--gray1) !important;
+  font-family: var(--mono) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  border: none !important;
+  border-left: 1px solid var(--border) !important;
+  cursor: pointer;
+  display: flex !important;
+  align-items: center !important;
+  text-decoration: none !important;
+  -webkit-appearance: none !important;
+  touch-action: manipulation;
+  margin-right: 0 !important;
+  border-radius: 0 !important;
+}
+#btn-lang:active, #mob-link:active { background: var(--border2) !important; }
+
+/* Sidebar = dropdown, same width as logo */
+#sidebar {
+  position: fixed !important;
+  top: 54px !important;
+  left: 0 !important;
+  width: 270px !important;
+  height: auto !important;
+  max-height: calc(100vh - 54px) !important;
+  z-index: 850 !important;
+  transform: translateY(-100vh);
+  transition: transform 0.3s ease;
+  display: flex !important;
+  flex-direction: column;
+  overflow-y: auto;
+  box-shadow: 4px 6px 24px rgba(0,0,0,0.7);
+}
+#sidebar.mob-open { transform: translateY(0); }
+
+/* Hide desktop search tab */
+#tab-search { display: none !important; }
+
+/* Search row at top of panel */
+#mob-sidebar-search {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--dark);
+}
+#mob-sidebar-search input {
+  width: 100%;
+  background: var(--mid);
+  border: 1px solid var(--border2);
+  color: var(--white);
+  font-family: var(--font);
+  font-size: 16px;
+  padding: 7px 10px;
+  outline: none;
+  -webkit-appearance: none;
+}
+#mob-sidebar-search input::placeholder { color: var(--gray2); }
+
+/* Map fills full screen below header */
+#map-outer {
+  position: fixed !important;
+  top: 54px !important;
+  left: 0 !important; right: 0 !important; bottom: 0 !important;
+  width: 100% !important;
+  height: calc(100vh - 54px) !important;
+}
+
+.bm-btn { min-width: 44px; min-height: 40px; padding: 0 10px; }
+.layout { flex-direction: row; }
 
 </style>
 </head>
@@ -1553,7 +1578,6 @@ function toggleLang(){
 <script>
 /* ── MOBILE: toggle panel via Wasted Ecologies tap ── */
 function mobTogglePanel() {
-  if (window.innerWidth > 768) return;
   var sb   = document.getElementById('sidebar');
   var logo = document.getElementById('mob-logo');
   if (!sb) return;
@@ -1581,12 +1605,10 @@ document.addEventListener('DOMContentLoaded', function() {
   var mapOuter = document.getElementById('map-outer');
   if (mapOuter) {
     mapOuter.addEventListener('click', function() {
-      if (window.innerWidth <= 768) {
-        var sb   = document.getElementById('sidebar');
-        var logo = document.getElementById('mob-logo');
-        if (sb)   sb.classList.remove('mob-open');
-        if (logo) logo.classList.remove('mob-open');
-      }
+      var sb   = document.getElementById('sidebar');
+      var logo = document.getElementById('mob-logo');
+      if (sb)   sb.classList.remove('mob-open');
+      if (logo) logo.classList.remove('mob-open');
     });
   }
 });

@@ -9,6 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-minimap/3.6.1/Control.MiniMap.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-minimap/3.6.1/Control.MiniMap.min.js"></script>
 <link href='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css' rel='stylesheet'/>
@@ -53,7 +55,6 @@ body {
   flex-shrink: 0;
   position: relative;
 }
-
 .hdr-tabs {
   display: flex;
   align-items: stretch;
@@ -637,7 +638,7 @@ body {
 #map3d { display: none; }
 /* Basemap control */
 #bm-ctrl {
-  position: absolute; bottom: 10px; right: 54px; z-index: 1000;
+  position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); z-index: 1000;
   display: flex; background: var(--dark); border: 1px solid var(--border2);
 }
 .bm-btn {
@@ -664,7 +665,7 @@ body {
 .btn-3d.active { background: var(--red); border-color: var(--red); color: #fff; }
 
 /* ── MAPLIBRE overrides ── */
-.maplibregl-ctrl-attrib { 
+.maplibregl-ctrl-attrib {
   background: var(--dark) !important; color: var(--gray2) !important;
   font-size: 9px !important;
 }
@@ -688,6 +689,7 @@ body {
   <div class="hdr-right">
     <div class="hdr-count"><span data-i18n="hdr_visible">Visibili:</span> <span id="hdr-vis">241</span> / <span id="hdr-tot">241</span></div>
     <button class="btn-3d" id="btn-lang" onclick="toggleLang()" title="Switch language" style="margin-right:4px">EN</button>
+    <a href="mobile.html" class="btn-3d" id="mob-link" title="Open mobile version" style="margin-right:4px; text-decoration:none;">MOBILE</a>
     <button class="btn-3d" id="btn-3d" onclick="toggle3D()" title="Toggle 3D terrain view">3D</button>
   </div>
 </div>
@@ -708,7 +710,7 @@ body {
       <!-- 1. SITI CONTAMINATI (expandable with sub-categories) -->
       <div class="layer-section" id="section-siti">
         <div class="layer-row active" id="row-siti" onclick="toggleExpand('siti')">
-          <div class="lr-icon"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><polygon points="8,2 15,14 1,14" fill="#EE4238" opacity="0.9"/></svg></div>
+          <div class="lr-icon"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><polygon points="8,14 15,2 1,2" fill="#EE4238" opacity="0.9"/></svg></div>
           <span class="lr-name" data-i18n="layer_siti">Siti Contaminati Prioritari</span>
           <span class="lr-count" id="cnt-siti">241</span>
           <span class="lr-chevron">›</span>
@@ -723,11 +725,8 @@ body {
       <div class="layer-section">
         <div class="layer-row" id="row-beni" onclick="toggleLayer('beni', this)">
           <div class="lr-icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <line x1="8" y1="14" x2="8" y2="6" stroke="#a855f7" stroke-width="1.4" stroke-linecap="round"/>
-            <ellipse cx="8" cy="4" rx="2" ry="2.2" fill="#a855f7" opacity="0.9"/>
-            <path d="M8 11 C8 11 5.5 10.5 5 9 C6.8 8.8 8 10.2 8 10.2" fill="#a855f7" opacity="0.75" stroke="none"/>
-            <path d="M8 9.5 C8 9.5 10.5 9 11 7.5 C9.2 7.3 8 8.7 8 8.7" fill="#a855f7" opacity="0.75" stroke="none"/>
-            <path d="M8 8 C8 8 5.5 7.5 5 6 C6.8 5.8 8 7.2 8 7.2" fill="#a855f7" opacity="0.6" stroke="none"/>
+            <line x1="5" y1="3" x2="5" y2="13" stroke="#a855f7" stroke-width="1.2" opacity="0.6"/>
+            <polygon points="5,3 13,6 5,9" fill="#a855f7" opacity="0.5"/>
           </svg></div>
           <span class="lr-name" data-i18n="layer_beni">Beni Agricoli Confiscati</span>
           <span class="lr-count">21</span>
@@ -741,7 +740,7 @@ body {
       <!-- 3. COMUNI INDAGATI -->
       <div class="layer-section">
         <div class="layer-row" id="row-comuni" onclick="toggleLayer('comuni', this)">
-          <div class="lr-icon"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><polygon points="8,2 15,14 1,14" fill="#0ea5e9" opacity="0.9"/></svg></div>
+          <div class="lr-icon"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="10" height="10" fill="#0ea5e9" fill-opacity="0.3" stroke="#0ea5e9" stroke-width="1.5"/></svg></div>
           <span class="lr-name" data-i18n="layer_comuni">Comuni Indagati</span>
           <span class="lr-count">70</span>
           <span class="lr-chevron">›</span>
@@ -754,7 +753,7 @@ body {
       <!-- 4. PARTICELLE CLASSIFICATE -->
       <div class="layer-section">
         <div class="layer-row" id="row-part" onclick="toggleLayer('part', this)">
-          <div class="lr-icon"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><polygon points="8,2 15,14 1,14" fill="#dc2626" opacity="0.9"/></svg></div>
+          <div class="lr-icon"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="10" height="10" fill="#EAB308" fill-opacity="0.3" stroke="#EAB308" stroke-width="1.5"/></svg></div>
           <span class="lr-name" data-i18n="layer_part">Particelle Classificate</span>
           <span class="lr-count">642</span>
           <span class="lr-chevron">›</span>
@@ -767,7 +766,7 @@ body {
       <!-- 5. SITI SPECIFICI -->
       <div class="layer-section">
         <div class="layer-row" id="row-spec" onclick="toggleExpand('spec')">
-          <div class="lr-icon"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><polygon points="8,2 15,14 1,14" fill="#f97316" opacity="0.9"/></svg></div>
+          <div class="lr-icon"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="10" height="10" fill="#f97316" fill-opacity="0.3" stroke="#f97316" stroke-width="1.5"/></svg></div>
           <span class="lr-name" data-i18n="layer_spec">Siti Specifici</span>
           <span class="lr-count">3</span>
           <span class="lr-chevron">›</span>
@@ -837,7 +836,6 @@ body {
     <button class="bm-btn" id="bm-osm"   onclick="setBasemap('osm')">OSM</button>
     <button class="bm-btn" id="bm-sat"   onclick="setBasemap('sat')">SAT</button>
     <button class="bm-btn" id="bm-dark"  onclick="setBasemap('dark')">DARK</button>
-    <button class="bm-btn" id="bm-maps"  onclick="setBasemap('maps')">MAPS</button>
   </div>
   <div id="north-arrow">
     <svg viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">
@@ -988,7 +986,20 @@ new L.Control.MiniMap(miniTile,{
 }).addTo(map);
 
 // ── RENDER SITES ──
-const markersLg=L.layerGroup().addTo(map);
+const markersLg=L.markerClusterGroup({
+  maxClusterRadius: 45,
+  spiderfyOnMaxZoom: true,
+  showCoverageOnHover: false,
+  zoomToBoundsOnClick: true,
+  iconCreateFunction: function(cluster){
+    const n=cluster.getChildCount();
+    const size=n<10?28:n<50?34:40;
+    return L.divIcon({
+      html:'<div style="width:'+size+'px;height:'+size+'px;background:#EE4238;border:1px solid rgba(255,255,255,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:\'IBM Plex Mono\',monospace;font-size:10px;font-weight:700;color:#fff;opacity:0.88;">'+n+'</div>',
+      className:'',iconSize:[size,size],iconAnchor:[size/2,size/2]
+    });
+  }
+}).addTo(map);
 const mByIdx=new Map();
 function getCat(type){return TYPE_TO_CAT[type]||'Dismesso / Ex-Industriale';}
 function getColor(type){const cat=getCat(type);return(CATEGORIES[cat]||{color:'#888'}).color;}
@@ -996,7 +1007,7 @@ const hiddenCats=new Set();
 SITES.forEach((s,i)=>{
   const col=getColor(s['Site Type']);
   const m=L.marker([s.lat,s.lon],{
-    icon:L.divIcon({className:'',html:'<svg width="10" height="12" viewBox="0 0 10 12" xmlns="http://www.w3.org/2000/svg" style="display:block"><polygon points="5,12 0,0 10,0" fill="'+col+'" opacity="0.9"/></svg>',iconSize:[10,12],iconAnchor:[5,6]})
+    icon:L.divIcon({className:'',html:'<svg width="10" height="12" viewBox="0 0 10 12" xmlns="http://www.w3.org/2000/svg" style="display:block"><polygon points="5,12 0,0 10,0" fill="#EE4238" opacity="0.8"/></svg>',iconSize:[10,12],iconAnchor:[5,6]})
   }).bindPopup(()=>sitePopupHTML(s),{maxWidth:320});
   m.addTo(markersLg);
   mByIdx.set(i,m);
@@ -1007,7 +1018,7 @@ const shpColors={landfill:'#EE4238','masseria ferraioli':'#f97316','ecoballe ace
 Object.entries(SHP_DATA).forEach(([name,polys])=>{
   polys.forEach(p=>{
     if(p.type==='polygon'){
-      L.polygon(p.rings,{color:shpColors[name]||'#EE4238',weight:2,fillOpacity:0.3,fillColor:shpColors[name]||'#EE4238'})
+      L.polygon(p.rings,{color:shpColors[name]||'#EE4238',weight:0.8,fillOpacity:0.1,fillColor:shpColors[name]||'#EE4238'})
         .bindPopup('<div class="popup-wrap"><div class="popup-title">'+name+'</div></div>').addTo(markersLg);
     }
   });
@@ -1017,7 +1028,7 @@ Object.entries(SHP_DATA).forEach(([name,polys])=>{
 const beniLg=L.layerGroup();
 let beniOn=true;
 BENI.forEach(b=>{
-  L.circleMarker([b.lat,b.lon],{radius:7,color:'#a855f7',weight:2,fillColor:'#a855f7',fillOpacity:0.75})
+  L.marker([b.lat,b.lon],{icon:L.divIcon({className:'',html:'<svg width="13" height="20" viewBox="0 0 8 13" xmlns="http://www.w3.org/2000/svg" style="display:block"><line x1="2" y1="1" x2="2" y2="12" stroke="#a855f7" stroke-width="1.2" opacity="0.6"/><polygon points="2,1 8,3.5 2,6" fill="#a855f7" opacity="0.5"/></svg>',iconSize:[13,20],iconAnchor:[2,20]})})
     .bindPopup(()=>'<div class="popup-wrap"><div class="popup-title">'+T('p_bene')+'</div>'
       +'<div class="popup-row"><span class="popup-label">'+T('p_id')+'</span><span>'+b.props.id+'</span></div></div>')
     .addTo(beniLg);
@@ -1028,7 +1039,7 @@ beniLg.addTo(map);
 const comuniLg=L.layerGroup();
 let comuniOn=true;
 COMUNI.forEach(c=>{
-  L.polygon(c.rings,{color:'#0ea5e9',weight:1.5,fillColor:'#0ea5e9',fillOpacity:0.15})
+  L.polygon(c.rings,{color:'#0ea5e9',weight:0.8,fillColor:'#0ea5e9',fillOpacity:0.06})
     .bindPopup(()=>'<div class="popup-wrap"><div class="popup-title">'+(c.props.comune||T('p_comune'))+'</div>'
       +'<div class="popup-row"><span class="popup-label">'+T('p_provincia')+'</span><span>'+(c.props.sigla_pro||'')+'</span></div></div>')
     .addTo(comuniLg);
@@ -1040,7 +1051,7 @@ const partLg=L.layerGroup();
 let partOn=true;
 PARTICELLE.forEach(p=>{
   const hw=(p.props.rifiuti==='SI');
-  L.polygon(p.rings,{color:hw?'#dc2626':'#78716c',weight:1,fillColor:hw?'#dc2626':'#78716c',fillOpacity:0.25})
+  L.polygon(p.rings,{color:'#EAB308',weight:0.7,fillColor:'#EAB308',fillOpacity:0.1})
     .bindPopup(()=>'<div class="popup-wrap"><div class="popup-title">'+T('p_particella')+'</div>'
       +'<div class="popup-row"><span class="popup-label">'+T('p_rifiuti')+'</span><span>'+(hw?T('yes'):T('no'))+'</span></div>'
       +(p.props.decreto?'<div class="popup-row"><span class="popup-label">'+T('p_decreto')+'</span><span>'+p.props.decreto+'</span></div>':'')
@@ -1059,7 +1070,7 @@ function buildCatRows(){
     const row=document.createElement('div');
     row.className='sub-row'+(hiddenCats.has(cat)?' off':'');
     row.dataset.cat=cat;
-    row.innerHTML='<div class="sub-icon"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><polygon points="8,2 15,14 1,14" fill="'+info.color+'" opacity="0.9"/></svg></div>'
+    row.innerHTML='<div class="sub-icon"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><polygon points="8,14 15,2 1,2" fill="'+info.color+'" opacity="0.9"/></svg></div>'
       +'<span class="sub-name">'+catName(cat)+'</span>'
       +'<span class="sub-count">'+count+'</span>';
     row.onclick=e=>{
@@ -1311,8 +1322,8 @@ function addTerrainAndData() {
       type:'Feature', geometry:{type:'Polygon', coordinates:toCoords(c.rings)}, properties:c.props
     }))};
     glMap.addSource('comuni',{type:'geojson',data:comuniFC});
-    glMap.addLayer({id:'comuni-fill',type:'fill',source:'comuni',paint:{'fill-color':'#0ea5e9','fill-opacity':0.18}});
-    glMap.addLayer({id:'comuni-line',type:'line',source:'comuni',paint:{'line-color':'#0ea5e9','line-width':1.2,'line-opacity':0.6}});
+    glMap.addLayer({id:'comuni-fill',type:'fill',source:'comuni',paint:{'fill-color':'#0ea5e9','fill-opacity':0.07}});
+    glMap.addLayer({id:'comuni-line',type:'line',source:'comuni',paint:{'line-color':'#0ea5e9','line-width':0.8,'line-opacity':0.35}});
   }
   if (!glMap.getSource('particelle')) {
     const partFC = {type:'FeatureCollection', features: PARTICELLE.map(p=>({
@@ -1320,7 +1331,7 @@ function addTerrainAndData() {
     }))};
     glMap.addSource('particelle',{type:'geojson',data:partFC});
     glMap.addLayer({id:'part-fill',type:'fill',source:'particelle',
-      paint:{'fill-color':['case',['==',['get','rifiuti'],'SI'],'#dc2626','#78716c'],'fill-opacity':0.3}});
+      paint:{'fill-color':'#EAB308','fill-opacity':0.12}});
   }
   if (!glMap.getSource('shp')) {
     const shpFeat=[];
@@ -1332,8 +1343,8 @@ function addTerrainAndData() {
       });});
     });
     glMap.addSource('shp',{type:'geojson',data:{type:'FeatureCollection',features:shpFeat}});
-    glMap.addLayer({id:'shp-fill',type:'fill',source:'shp',paint:{'fill-color':['get','color'],'fill-opacity':0.35}});
-    glMap.addLayer({id:'shp-line',type:'line',source:'shp',paint:{'line-color':['get','color'],'line-width':2}});
+    glMap.addLayer({id:'shp-fill',type:'fill',source:'shp',paint:{'fill-color':['get','color'],'fill-opacity':0.1}});
+    glMap.addLayer({id:'shp-line',type:'line',source:'shp',paint:{'line-color':['get','color'],'line-width':0.8}});
   }
   if (!glMap.getSource('beni')) {
     const beniFC={type:'FeatureCollection',features:BENI.map(b=>({
@@ -1341,7 +1352,7 @@ function addTerrainAndData() {
     }))};
     glMap.addSource('beni',{type:'geojson',data:beniFC});
     glMap.addLayer({id:'beni-pts',type:'circle',source:'beni',
-      paint:{'circle-radius':7,'circle-color':'#a855f7','circle-stroke-width':2,'circle-stroke-color':'rgba(255,255,255,0.7)'}});
+      paint:{'circle-radius':4,'circle-color':'#a855f7','circle-opacity':0.5,'circle-stroke-width':1,'circle-stroke-color':'#a855f7','circle-stroke-opacity':0.4}});
   }
   if (!glMap.getSource('sites3d')) {
     const sitesFC={type:'FeatureCollection',features:SITES.map(s=>({

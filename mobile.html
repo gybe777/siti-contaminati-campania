@@ -1537,6 +1537,7 @@ function init3D() {
   const c = map.getCenter();
   const isVector = currentBMKey === 'maps';
 
+  // Keep baseStyle minimal — no terrain source here (avoids blocking the load event)
   const baseStyle = isVector ? MAPS_VECTOR_STYLE : {
     version: 8,
     glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
@@ -1546,11 +1547,6 @@ function init3D() {
         tiles: bmTiles3d[currentBMKey],
         tileSize: 256,
         attribution: currentBMKey==='osm'?'© OpenStreetMap':'© CartoDB/Esri'
-      },
-      terrain: {
-        type: 'raster-dem',
-        tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
-        encoding: 'terrarium', tileSize: 256, maxzoom: 14
       }
     },
     layers: [{ id: 'base', type: 'raster', source: 'carto' }]
@@ -1565,8 +1561,21 @@ function init3D() {
     dragRotate: true, touchZoomRotate: true
   });
 
-  glMap.on('load', () => { addTerrainAndData(); });
-  glMap.on('style.load', () => { addTerrainAndData(); });
+  // Use a flag so addTerrainAndData only runs once per init
+  let _dataAdded = false;
+  function _loadData() {
+    if (_dataAdded) return;
+    _dataAdded = true;
+    try { addTerrainAndData(); } catch(e) { console.error('addTerrainAndData:', e); }
+  }
+  glMap.on('style.load', _loadData);
+  glMap.on('load', _loadData);
+  // Fallback: if events don't fire within 4 s, try once style is ready
+  const _fallback = setInterval(() => {
+    if (_dataAdded) { clearInterval(_fallback); return; }
+    if (glMap && glMap.isStyleLoaded()) { clearInterval(_fallback); _loadData(); }
+  }, 500);
+  setTimeout(() => clearInterval(_fallback), 8000);
 
   glMap.addControl(new maplibregl.NavigationControl({visualizePitch:true}),'top-right');
   glMap.addControl(new maplibregl.ScaleControl({unit:'metric'}),'bottom-left');

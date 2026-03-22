@@ -810,9 +810,8 @@ body.mode-3d #bm-ctrl { right: auto; left: 10px; }
 }
 #sidebar.mob-open { transform: translateY(0); }
 
-/* Hide desktop search tab on mobile */
-#tab-search { display: none !important; }
-#tab-search.visible { display: none !important; }
+/* On mobile: hide the duplicate desktop search input (we use #mob-sidebar-search instead) */
+.search-wrap { display: none !important; }
 
 /* Search row at top of panel */
 #mob-sidebar-search {
@@ -1455,6 +1454,11 @@ function fly(i) {
   const s=SITES[i];
   map.flyTo([s.lat,s.lon],15,{duration:0.8});
   setTimeout(()=>mByIdx.get(i)?.openPopup(),700);
+  // On mobile: close sidebar after selecting a result
+  var sb   = document.getElementById('sidebar');
+  var logo = document.getElementById('mob-logo');
+  if (sb)   sb.classList.remove('mob-open');
+  if (logo) logo.classList.remove('mob-open');
 }
 
 // ── RESET ──
@@ -1786,6 +1790,8 @@ document.addEventListener('DOMContentLoaded', function() {
     mobIn.addEventListener('input', function() {
       deskIn.value = mobIn.value;
       deskIn.dispatchEvent(new Event('input'));
+      // Show results list when typing, layers when cleared
+      switchTab(mobIn.value.trim() ? 'search' : 'layers');
     });
   }
 

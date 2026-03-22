@@ -472,10 +472,11 @@ body {
 }
 .sb-spacer { flex: 1; }
 .sb-item {
-  font-size: 11px;
+  font-size: 10px;
   font-family: var(--mono);
   color: var(--gray2);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
 }
 .sb-item span {
   color: var(--white);
@@ -525,7 +526,9 @@ body {
 .sub-icon svg { width: 14px; height: 14px; }
 
 
-/* ── SCALE BAR (FA-style override) ── */
+/* ── SCALE BAR ── */
+/* On mobile map-outer goes to bottom:0 — push scale above the 32px statusbar */
+.leaflet-bottom { padding-bottom: 40px !important; }
 .leaflet-control-scale { margin-bottom: 8px !important; margin-left: 10px !important; }
 .leaflet-control-scale-line {
   background: var(--dark) !important;
@@ -562,7 +565,7 @@ body {
 /* ── NORTH ARROW ── */
 #north-arrow {
   position: absolute;
-  bottom: 140px; left: 10px;
+  bottom: 170px; left: 10px;
   width: 44px; height: 44px;
   z-index: 900; pointer-events: none;
   transition: transform 0.25s ease;
@@ -725,9 +728,11 @@ body {
   justify-content: space-between !important;
 }
 
-/* Wasted Ecologies = tap to open panel */
+/* Wasted Ecologies = tap to open info panel */
 .hdr-logo {
-  width: 270px !important;
+  flex: 1 !important;
+  width: auto !important;
+  min-width: 0 !important;
   height: 54px !important;
   cursor: pointer;
   touch-action: manipulation;
@@ -736,17 +741,18 @@ body {
   position: relative;
 }
 
-/* EN + DESKTOP — top-right, same style as logo but dark */
+/* EN + DESKTOP + 3D — top-right buttons */
 .hdr-right {
   display: flex !important;
   align-items: stretch !important;
   border-left: none !important;
   margin-right: 0 !important;
   gap: 0 !important;
+  flex-shrink: 0 !important;
 }
-#btn-lang, #mob-link {
+#btn-lang, #mob-link, #btn-3d {
   height: 54px !important;
-  padding: 0 18px !important;
+  padding: 0 13px !important;
   background: var(--mid) !important;
   color: var(--gray1) !important;
   font-family: var(--mono) !important;
@@ -764,7 +770,8 @@ body {
   margin-right: 0 !important;
   border-radius: 0 !important;
 }
-#btn-lang:active, #mob-link:active { background: var(--border2) !important; }
+#btn-lang:active, #mob-link:active, #btn-3d:active { background: var(--border2) !important; }
+#btn-3d.active { background: var(--red) !important; color: #fff !important; }
 
 /* Sidebar = dropdown, same width as logo */
 #sidebar {

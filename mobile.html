@@ -695,6 +695,18 @@ body.mode-3d #bm-ctrl { right: auto; left: 10px; }
 .btn-3d.active { background: var(--red); border-color: var(--red); color: #fff; }
 
 /* ── MAPLIBRE overrides ── */
+/* Push MapLibre bottom-left controls (scale) above the 32px status bar */
+.maplibregl-ctrl-bottom-left { padding-bottom: 42px !important; }
+.maplibregl-ctrl-scale {
+  background: var(--dark) !important;
+  color: var(--gray1) !important;
+  border: 1px solid var(--border2) !important;
+  border-top: 2px solid var(--gray2) !important;
+  font-family: var(--mono) !important;
+  font-size: 11px !important;
+  letter-spacing: 0.05em !important;
+  padding: 3px 8px !important;
+}
 .maplibregl-ctrl-attrib {
   background: var(--dark) !important; color: var(--gray2) !important;
   font-size: 9px !important;

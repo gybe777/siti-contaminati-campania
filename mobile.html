@@ -527,8 +527,8 @@ body {
 
 
 /* ── SCALE BAR ── */
-/* On mobile map-outer goes to bottom:0 — push scale above the 32px statusbar */
-.leaflet-bottom { padding-bottom: 40px !important; }
+/* On mobile map-outer goes to bottom:0 — push controls above the 32px statusbar */
+.leaflet-bottom { padding-bottom: 48px !important; }
 .leaflet-control-scale { margin-bottom: 8px !important; margin-left: 10px !important; }
 .leaflet-control-scale-line {
   background: var(--dark) !important;
@@ -550,7 +550,7 @@ body {
   box-shadow: 0 2px 12px rgba(0,0,0,0.5) !important;
   border-radius: 0 !important;
   margin-right: 10px !important;
-  margin-bottom: 10px !important;
+  margin-bottom: 50px !important;
 }
 .leaflet-control-minimap-toggle-display {
   background: var(--dark) !important;
@@ -1730,12 +1730,19 @@ function mobTogglePanel() {
 }
 /* ── MOBILE: logo opens sidebar + info panel ── */
 function mobLogoInfo() {
-  var sb = document.getElementById('sidebar');
-  if (sb && !sb.classList.contains('mob-open')) {
-    sb.classList.add('mob-open');
-    var logo = document.getElementById('mob-logo');
-    if (logo) logo.classList.add('mob-open');
+  var sb    = document.getElementById('sidebar');
+  var panel = document.getElementById('info-panel');
+  var logo  = document.getElementById('mob-logo');
+  // If sidebar is already open (with or without info panel) → close everything
+  if (sb && sb.classList.contains('mob-open')) {
+    if (panel) panel.classList.remove('open');
+    sb.classList.remove('mob-open');
+    if (logo) logo.classList.remove('mob-open');
+    return;
   }
+  // Sidebar closed → open it and show info panel
+  sb.classList.add('mob-open');
+  if (logo) logo.classList.add('mob-open');
   toggleInfo();
 }
 

@@ -530,8 +530,11 @@ body {
 /* On mobile map-outer goes to bottom:0 — push controls above the 32px statusbar */
 .leaflet-bottom { padding-bottom: 52px !important; }
 .leaflet-bottom-left { padding-bottom: 52px !important; }
-.leaflet-control-scale { margin-bottom: 0 !important; margin-left: 10px !important; }
-.leaflet-control-scale { display: block !important; visibility: visible !important; }
+.leaflet-control-scale {
+  display: block !important; visibility: visible !important;
+  margin-bottom: 6px !important; margin-left: 10px !important;
+  z-index: 1000 !important; position: relative !important;
+}
 .leaflet-control-scale-line {
   background: var(--dark) !important;
   color: var(--gray1) !important;
@@ -667,6 +670,7 @@ body {
   display: flex; flex-direction: column;
   background: var(--dark); border: 1px solid var(--border2);
 }
+body.mode-3d #bm-ctrl { right: auto; left: 10px; }
 .bm-btn {
   background: transparent; border: none;
   border-bottom: 1px solid var(--border2);
@@ -1533,6 +1537,7 @@ function toggle3D() {
   const mapEl  = document.getElementById('map');
   const map3dEl= document.getElementById('map3d');
   btn.classList.toggle('active', map3dOn);
+  document.body.classList.toggle('mode-3d', map3dOn);
   mapEl.style.display  = map3dOn ? 'none' : 'block';
   map3dEl.style.display= map3dOn ? 'block' : 'none';
   const hint = document.getElementById('rotate-hint');

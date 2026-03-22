@@ -1733,17 +1733,18 @@ function mobLogoInfo() {
   var sb    = document.getElementById('sidebar');
   var panel = document.getElementById('info-panel');
   var logo  = document.getElementById('mob-logo');
-  // If sidebar is already open (with or without info panel) → close everything
-  if (sb && sb.classList.contains('mob-open')) {
-    if (panel) panel.classList.remove('open');
-    sb.classList.remove('mob-open');
-    if (logo) logo.classList.remove('mob-open');
-    return;
+  if (!sb) return;
+  var isOpen = sb.classList.contains('mob-open');
+  // Always close everything first
+  sb.classList.remove('mob-open');
+  if (logo)  logo.classList.remove('mob-open');
+  if (panel) panel.classList.remove('open');
+  // If it was closed → open sidebar + info panel
+  if (!isOpen) {
+    sb.classList.add('mob-open');
+    if (logo)  logo.classList.add('mob-open');
+    if (panel) panel.classList.add('open');
   }
-  // Sidebar closed → open it and show info panel
-  sb.classList.add('mob-open');
-  if (logo) logo.classList.add('mob-open');
-  toggleInfo();
 }
 
 /* ── MOBILE: wire panel search to existing search logic ── */
@@ -1757,14 +1758,16 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  /* Close panel when map is tapped */
+  /* Close panel + info when map is tapped */
   var mapOuter = document.getElementById('map-outer');
   if (mapOuter) {
     mapOuter.addEventListener('click', function() {
-      var sb   = document.getElementById('sidebar');
-      var logo = document.getElementById('mob-logo');
-      if (sb)   sb.classList.remove('mob-open');
-      if (logo) logo.classList.remove('mob-open');
+      var sb    = document.getElementById('sidebar');
+      var logo  = document.getElementById('mob-logo');
+      var panel = document.getElementById('info-panel');
+      if (sb)    sb.classList.remove('mob-open');
+      if (logo)  logo.classList.remove('mob-open');
+      if (panel) panel.classList.remove('open');
     });
   }
 });

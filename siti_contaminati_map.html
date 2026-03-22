@@ -864,6 +864,15 @@ body {
         </div>
       </div>
 
+      <!-- INFO -->
+      <div class="layer-section">
+        <div class="layer-row" onclick="toggleInfo()">
+          <div class="lr-icon" style="font-family:Georgia,serif;font-style:italic;font-size:15px;font-weight:700;color:var(--gray1);display:flex;align-items:center;justify-content:center;">i</div>
+          <span class="lr-name" data-i18n="layer_info">Info sul progetto</span>
+          <span class="lr-chevron">›</span>
+        </div>
+      </div>
+
     </div><!-- /tab-layers -->
 
     <!-- Search tab panel -->
@@ -993,6 +1002,7 @@ const I18N = {
     desc_sat:'Sentinel-2 cloudless 2024 — mosaico cloud-free ad alta risoluzione (10m), ESA Copernicus. © EOX.',
     layer_quake:'Sismi Recenti',
     desc_quake:'Terremoti M≥1.5 — ultimi 90 giorni, area Campania. Fonte: USGS Earthquake Hazards Program.',
+    layer_info:'Info sul progetto',
     lbl_opacity:'Opacità',
   },
   en: {
@@ -1032,6 +1042,7 @@ const I18N = {
     desc_sat:'Sentinel-2 cloudless 2024 — high-resolution (10m) cloud-free mosaic, ESA Copernicus. © EOX.',
     layer_quake:'Recent Earthquakes',
     desc_quake:'Earthquakes M≥1.5 — last 90 days, Campania area. Source: USGS Earthquake Hazards Program.',
+    layer_info:'Project info',
     lbl_opacity:'Opacity',
   }
 };
